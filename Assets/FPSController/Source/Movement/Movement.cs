@@ -104,23 +104,18 @@ namespace URC.Movement
 
         /// <summary>
         /// Main logic for movement on ground when angle is too steep.
-        /// 
-        /// Acts like ground movement except for the fact that the ground normal is always straight up.
-        /// This prevents the player from going up steep slopes through air movement
+        /// Prevents air climbing slopes
         /// </summary>
         private void SlopeMovement()
         {
             // Calculate desired velocity based on direction
-            Vector3 desiredVelocity = m_desiredDirection * m_airSettings.TopSpeed;
-            desiredVelocity = Vector3.ProjectOnPlane(desiredVelocity, Vector3.up);
+            Vector3 force = m_desiredDirection * m_airSettings.Acceleration;
 
-            // Determine if we should accelerate or decelerate
-            float speedChange = (m_desiredDirection == Vector3.zero) ? m_airSettings.Deceleration : m_airSettings.Acceleration;
+            // Prevent slope climbing
+            Vector3 perpenticularObstructionNormal = Vector3.Cross(Vector3.Cross(Vector3.up, Motor.GroundNormal), Vector3.up).normalized;
+            force = Vector3.ProjectOnPlane(force, perpenticularObstructionNormal);
 
-            // Find new velocity and apply it
-            Vector3 newVelocity = Vector3.MoveTowards(Motor.Velocity, desiredVelocity, speedChange);
-            newVelocity.y = Motor.VerticalSpeed;
-            Motor.SetVelocity(newVelocity);
+            Motor.AddForce(force);
         }
         
         /// <summary>

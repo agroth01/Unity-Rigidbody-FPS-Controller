@@ -87,6 +87,7 @@ namespace URC.Camera
 
         // References
         private UnityEngine.Camera m_camera;
+        private CapsuleCollider m_collider;
 
         #endregion
 
@@ -199,13 +200,13 @@ namespace URC.Camera
         }
 
         /// <summary>
-        /// Determines the offset from center of player transform, accounting for player size
+        /// Determines the offset from center of player transform, accounting for collider size and player size
         /// </summary>
         /// <returns>Offset from center</returns>
         private Vector3 GetScaledOffset()
         {
-            Vector3 offset = new Vector3(0.0f, Mathf.Lerp(-m_player.localScale.y, m_player.localScale.y, m_headHeight), 0.0f);
-            return offset;
+            Vector3 offset = new Vector3(0.0f, Mathf.Lerp(-m_collider.height / 2.0f, m_collider.height / 2.0f, m_headHeight), 0.0f);
+            return offset * m_player.localScale.y;
         }
 
         #endregion
@@ -229,6 +230,14 @@ namespace URC.Camera
             if (m_camera == null)
             {
                 Logging.Log(this.ClassName() + " could not find a camera on a child object. Camera object should be a child of object with this class.", LoggingLevel.Critical);
+                this.enabled = false;
+            }
+
+            // Get the collider
+            m_collider = m_player.GetComponent<CapsuleCollider>();
+            if (m_collider == null)
+            {
+                Logging.Log(this.ClassName() + " could not find a capsule collider on the player object. The player object should have a capsule collider.", LoggingLevel.Critical);
                 this.enabled = false;
             }
 

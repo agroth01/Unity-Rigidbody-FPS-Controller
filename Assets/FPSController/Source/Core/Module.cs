@@ -15,7 +15,7 @@ namespace URC.Core
         /// </summary>
         public Motor Motor { get; private set; }
 
-        private void Awake()
+        public virtual void Awake()
         {
             // Check for motor class and disable if not found.
             if (!GetMotor())
@@ -23,6 +23,33 @@ namespace URC.Core
                 Logging.Log("Module " + this.ClassName() + " could not find a motor to attach to. Module will be disabled.", LoggingLevel.Critical);
                 this.enabled = false;
             }
+        }
+
+        /// <summary>
+        /// Looks for the capsule collider of the player.
+        /// Will return null if no collider is found
+        /// </summary>
+        /// <returns></returns>
+        public CapsuleCollider FindCollider()
+        {
+            CapsuleCollider collider;
+
+            // Check if it is on this object
+            collider = GetComponent<CapsuleCollider>();
+            if (collider != null)
+            {
+                return collider;
+            }
+
+            // Check if it is on parent object
+            collider = GetComponentInParent<CapsuleCollider>();
+            if (collider != null)
+            {
+                return collider;
+            }
+
+            // Default return value
+            return collider;
         }
 
         /// <summary>

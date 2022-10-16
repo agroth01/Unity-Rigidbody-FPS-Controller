@@ -596,6 +596,7 @@ GameObject:
   - component: {fileID: 2054736423}
   - component: {fileID: 2054736424}
   - component: {fileID: 2054736425}
+  - component: {fileID: 2054736426}
   m_Layer: 0
   m_Name: URC Modules
   m_TagString: Untagged
@@ -636,7 +637,7 @@ MonoBehaviour:
     Deceleration: 5
   m_airSettings:
     TopSpeed: 5
-    Acceleration: 5
+    Acceleration: 15
     Deceleration: 0
   m_extraVelocityHandling: 3
   m_airCorrectionSpeed: 0.5
@@ -653,7 +654,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_jumpSequence:
-  - force: 7
+  - force: 8
     requiresGrounding: 1
     applicationMode: 1
   m_autoJump: 1
@@ -661,6 +662,26 @@ MonoBehaviour:
   m_jumpQueueTime: 0.05
   m_jumpHoldGravityMultiplier: 1
   m_minJumpCooldown: 0.2
+--- !u!114 &2054736426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054736422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4528a1cd14b59314dacab7899d08ae99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isToggle: 1
+  m_mustStartOnGround: 0
+  m_stopOnGroundLeave: 0
+  m_sizeReduction: 0.5
+  m_shrinkingSpeed: 7.5
+  m_growthSpeed: 7.5
+  m_speedReduction: 0.5
+  m_speedChangeTime: 0.1
 --- !u!1 &2104485877
 GameObject:
   m_ObjectHideFlags: 0

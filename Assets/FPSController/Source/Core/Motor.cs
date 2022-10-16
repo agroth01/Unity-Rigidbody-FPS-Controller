@@ -360,7 +360,7 @@ namespace URC.Core
 
         #region Ground Detection
         /// <summary>
-        /// The grounded status of motor
+        /// The grounded status of motor 
         /// </summary>
         public bool Grounded
         {
@@ -392,6 +392,14 @@ namespace URC.Core
         }
 
         /// <summary>
+        /// Return the layermask for ground
+        /// </summary>
+        public LayerMask GroundLayers
+        {
+            get { return m_groundLayers; }
+        }
+
+        /// <summary>
         /// Updates the grounding status of motor depending on current surfaces
         /// </summary>
         private void UpdateGrounding()
@@ -408,14 +416,16 @@ namespace URC.Core
             if (m_groundSurface.Angle > m_maxSlopeAngle)
             {
                 m_isSloped = true;
-                m_isGrounded = true;
+                m_isGrounded = false;
+                return;
             }
 
             // Normal grounded
-            else if (m_groundPreventionTimer <= 0.0f)
+            if (m_groundPreventionTimer <= 0.0f)
             {
                 m_isGrounded = true;
                 m_isSloped = false;
+                return;
             }
         }
         
@@ -462,7 +472,10 @@ namespace URC.Core
             else
             {
                 m_groundSurface = ground;
-                OnGrounded();
+
+                // Only call event if surface is not slope
+                if (m_groundSurface.Angle < m_maxSlopeAngle)
+                    OnGrounded();
             }
         }
 
