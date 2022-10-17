@@ -48,7 +48,7 @@ namespace URC.Audio
 
         private void Update()
         {
-            if (Motor.Grounded)
+            if (Motor.Grounded && Motor.HorizontalSpeed > 0.0f && InputHelper.DesiresMove())
             {
                 UpdateFootsteps();
             }
@@ -76,6 +76,14 @@ namespace URC.Audio
                 // Increase footsteps timer
                 m_footstepTimer += Time.deltaTime;
             }
+        }
+
+        /// <summary>
+        /// Plays a footstep sound, ignoring timers and conditions
+        /// </summary>
+        public void ForceFootstep()
+        {
+            PlayFootstepSound();
         }
 
         /// <summary>
@@ -169,6 +177,9 @@ namespace URC.Audio
                 // Determine where to play sound
                 Vector3 playPoint = Motor.GetPlayerBottom();
 
+                // Account for velocity so that sound will not be played behind instead
+                playPoint += Motor.HorizontalVelocity * Time.deltaTime;
+
                 // Play it.
                 AudioSource.PlayClipAtPoint(clip, playPoint, volume);
             }
@@ -180,7 +191,7 @@ namespace URC.Audio
         /// <returns></returns>
         private float GetFrequency()
         {
-            float frequency = (m_frquencyVelocityScaling) ? m_frequency * Motor.HorizontalSpeed : m_frequency;
+            float frequency = (m_frquencyVelocityScaling) ? m_frequency / Motor.HorizontalSpeed : m_frequency;
             return frequency;
         }
     }
