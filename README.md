@@ -1,46 +1,58 @@
-# Better FPS Controller
-
+# Unity-Rigidbody-FPS-Controller
 ## What is this?
-Better FPS Controller is my response to the disturbing lack of quality free FPS controllers for Unity available. Most controllers you can find for free online are either:
-* Outdated
-* Terrible quality
-* Not extendable
+This is my side project that I am working on to create a free high quality rigidbody based FPS controller for Unity engine. The vision is to create a modular, easy to use,
+cleanly written FPS controller that is widely available to the public. Hopefully, this will be a good basis for people looking to kickstart their new game idea.
 
-My solution was to create my own fps controller that has a modular design, clean commented code with good practices and is easily extendable. It will also remain free forever to hopefully help and inspire game developers to make better games.
+## Uses
+### Prototyping
+If you are looking for a quick and easy way to test out game ideas without having to spend hours creating a character controller, this will be perfect for you. It includes
+various premade setups for frictionless "plug and play" integrations into your existing project. Focus on what is important for your game.
 
-## Why use this controller?
-### Modular
-No more do you have to see another "PlayerController.cs" at 2000+ lines of code. Better FPS Controller is built to be modular, where script are built to be independant of eachother and can be modified, added and removed as needed. This also makes it easier to understand and debug.
+### Controller base
+From the start, this controller was made from the ground up to be easily modifyable and extendable. The controller is designed to be modular with great flexibility to be built
+upon with events. There are multiple premade modules that can be added, removed and tweaked to build the perfect controller for your game.
 
-### Clean code
-To make this controller as valuable of a resource to the community as possible, I wanted to make sure that the code is cleanly written and well commented so that others can learn how it works, how to extend it and how you can make your own custom controller.
+### Learning
+All code is well documented, organized and commented in order to provide complete transparency and clarity how everything works together and why things does what it does. This
+is not only to make it easy to modify, but also to make it easier for less experienced developers understand and learn from. Ideally you can learn some tecniques when creating
+your own controllers.
 
-### Extendable
-A problem I have had with controllers in the past, especially free ones is the freedom to take the already existing code and build on top of it. This controller was built with exactly that in mind, providing various ways to extend on this controller to make it fit your game. There is even included multiple examples on how to implement various mechanics, such as a jetpack, dash ability and a teleport ability.
+## Features
+### Core features
+* Modular design. Reduce code bloat by only using the code you need.
+* Smooth camera controller. No more jitter!
+* Well documented. You will never be confused about what the purpose of something is.
 
-## Main features
-* Great customizable movement
-* Smooth camera controller with utilities
-* Footsteps and custom surface properties
-* Documentation and getting started guide
-* Prefabs for "plug and play" integration
+### Main modules
+* Movement
+* Footsteps
+* Headbobbing
+* Crouching
+* Jumping
+* Sprinting
 
-## Installation
-You can download the latest version from the [releases](https://github.com/agroth01/Better-FPS-Controller/releases) in the form of a .unitypackage file. Once downloaded, either drag the file into your editor or double click it to import.
+### Additional features
+* Camera utilities
+* Stamina system
+* Interaction system
+* Custom surface properties
+* Custom surface audio
+* "Plug and play" prefabs
 
-Alternatively, if you like to make things more difficult for youself, you can download the source code and drag the folder inside "assets" into your asset folder.
+# Contributions
+If you want to contribute to this project, please feel free to fork this project and create pull requests. I will however be very strict with accepting, in order to preserve 
+coding style and structure.
 
-## Contributions, bug reports and support
-If you feel like you want to contribute to the project, feel free to fork and create a pull request. I am however trying to be very strict with keeping programming style and architecture consistent in this project, so therefore I will keep a high standard for accepting.
+For any bugs or other issues that you might encounter, you can either create an issue here on Github, or contact me directly via Discord.
 
-If you find any bugs or other problems with the controller, please make a new issue here on Github. Thank you!
-
-Finally, if you want to show support for the development of this, here are some of the ways to do so! I want to make it *very* clear that none of these are required what so ever, but all support is appreciated!
-* Create some great games for the indie community.
-* Share this github page with others.
-* Provide my information in the credits of what you make.
-* Say "Thank you Alex" three times into a mirror at 12am while in the complete dark and alone (I will appear in the mirror to thank you in person)
+# Support
+Finally, if you want to support the development of this project without contributing to the code, here are some of the ways you can do so. I want to make it very clear that
+none of this is mandatory in order to use this controller, but very appreciated!
+* Create some great games for the community (please share with me if you do!)
+* Share this project with others
+* Add me in the credits of your project
+* Say "Thank you Alex" into a mirror at 12am while completely alone. I will personally appear in the mirror and thank you.
 * [Buy me a coffee](https://www.buymeacoffee.com/HP3Byv4s7H) here. I once again want to make it clear that this is very much not mandatory.
 
-## Disclaimer
-As I am providing this for free, I cannot guarantee consistent updates, fixes and support. If you want all of this, there are a lot of great paid options for serious projects.
+# Disclaimer
+I am providing this free of charge and will therefore not guarantee any support/updates of this. 
