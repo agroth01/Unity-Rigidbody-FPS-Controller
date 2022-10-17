@@ -127,6 +127,12 @@ namespace URC.Movement
                 return;
             }
 
+            // Make sure we aren't blocked
+            if (Motor.IsBlocked())
+            {
+                return;
+            }
+
             // Get current jump from sequence
             Jump jump = m_jumpSequence[m_sequenceIndex];
 

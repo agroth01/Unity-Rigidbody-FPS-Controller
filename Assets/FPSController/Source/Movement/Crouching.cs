@@ -63,7 +63,7 @@ namespace URC.Movement
 
             VerifyCorrectSetup();
 
-            // Find movement module
+            // Find modules
             m_movement = GetComponent<Movement>();
         }
 
@@ -74,10 +74,20 @@ namespace URC.Movement
             m_targetSize = m_originalSize;
         }
 
+        private void OnEnable()
+        {
+            Motor.OnGroundExit += OnGroundExit;
+        }
+
+        private void OnDisable()
+        {
+            Motor.OnGroundExit -= OnGroundExit;
+        }
+
         private void Update()
         {
             // Start crouch if possible
-            if (Input.GetKeyDown(KeyCode.LeftControl) && !m_isCrouching)
+            if (Input.GetKey(KeyCode.LeftControl) && !m_isCrouching)
             {
                 // Add this for toggle to work
                 m_changedThisFrame = true;
@@ -175,6 +185,12 @@ namespace URC.Movement
             // Determine if we are shrinking or growing
             bool shrinking = m_originalSize > m_targetSize;
 
+            // Check if we are blocked from growing
+            if (!shrinking && Motor.IsBlocked())
+            {
+                return;
+            }
+
             // Calculate speed
             float speed = (shrinking) ? m_shrinkingSpeed : m_growthSpeed;
 
@@ -234,6 +250,21 @@ namespace URC.Movement
             }
 
             return pos;
+        }
+
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// Subscribed to from motor.
+        /// </summary>
+        private void OnGroundExit()
+        {
+            if (m_stopOnGroundLeave)
+            {
+                m_targetSize = m_originalSize;
+            }
         }
 
         #endregion

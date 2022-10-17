@@ -334,13 +334,24 @@ namespace URC.Core
         }
 
         /// <summary>
-        /// Adds a force unscaled by time
+        /// Adds a force unscaled by time   
         /// </summary>
         /// <param name="velocity">Velocity to add</param>
         public void AddImpulse(Vector3 velocity, float groundPrevention = 0.0f)
         {
             m_rigidbody.AddForce(velocity, ForceMode.Impulse);
             PreventGrounding(groundPrevention);
+        }
+
+        /// <summary>
+        /// Performs a raycast right above player to check if there is a ceiling or other object there.
+        /// Is used to prevent player from jumping when there is a ceiling above them and checking if player can stand up when crouched.
+        /// </summary>
+        /// <returns></returns>
+        public bool IsBlocked()
+        {
+            Vector3 playerTop = transform.position + ((Vector3.up * m_collider.height / 2) * transform.localScale.y);
+            return Physics.Raycast(playerTop, Vector3.up, 0.05f, m_groundLayers);
         }
 
         /// <summary>
