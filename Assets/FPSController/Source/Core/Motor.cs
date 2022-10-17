@@ -641,6 +641,8 @@ namespace URC.Core
             return transform.position + offset;
         }
 
+        #endregion
+
         #region Timers
         /// <summary>
         /// Updates all timers
