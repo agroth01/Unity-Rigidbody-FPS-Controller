@@ -98,6 +98,9 @@ namespace URC.Core
 
         #region Private variables
 
+        // Movement
+        private float m_speedMultiplier = 1.0f;            // Speed multiplier that can be used to modify movement speed from other modules via motor
+
         // Ground detection
         private Surface m_groundSurface;            // The current ground surface motor is touching
         private Surface m_wallSurface;              // The current wall surface motor is touching
@@ -287,6 +290,15 @@ namespace URC.Core
         public float Speed
         {
             get { return m_rigidbody.velocity.magnitude; }
+        }
+
+        /// <summary>
+        /// Mutliplier to use for modules affecting movement speed
+        /// </summary>
+        public float SpeedMutliplier
+        {
+            get { return m_speedMultiplier; }
+            set { m_speedMultiplier = value; }
         }
 
         /// <summary>

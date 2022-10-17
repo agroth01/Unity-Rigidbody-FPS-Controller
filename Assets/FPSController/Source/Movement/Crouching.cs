@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -31,11 +32,9 @@ namespace URC.Movement
         public float m_growthSpeed;
 
         [Header("Movement")]
-        [Tooltip("How much the movement speed should be reduced when crouching. Will only work if the movement module is also present.")]
+        [Tooltip("How much the movement speed should be reduced when crouching.")]
         [Range(0, 1)]
         public float m_speedReduction;
-        [Tooltip("How fast the transition between the two settings should be.")]
-        public float m_speedChangeTime;
 
         #endregion
 
@@ -51,7 +50,13 @@ namespace URC.Movement
 
         // Components
         private CapsuleCollider m_collider;
-        private Movement m_movement;
+
+        #endregion
+
+        #region Events
+
+        public event Action OnCrouchStart;
+        public event Action OnCrouchEnd;
 
         #endregion
 
@@ -60,11 +65,7 @@ namespace URC.Movement
         public override void Awake()
         {
             base.Awake(); // Make sure we find motor
-
             VerifyCorrectSetup();
-
-            // Find modules
-            m_movement = GetComponent<Movement>();
         }
 
         private void Start()
@@ -145,6 +146,9 @@ namespace URC.Movement
 
             // flag that we are crouching
             m_isCrouching = true;
+
+            // Call event
+            OnCrouchStart?.Invoke();
         }
 
         /// <summary>
@@ -162,12 +166,27 @@ namespace URC.Movement
         }
 
         /// <summary>
+        /// Called once when the size is at crouching size.
+        /// </summary>
+        private void OnFullyCrouched()
+        {
+            // Set the movement speed to crouching speed
+            Motor.SpeedMutliplier = Motor.SpeedMutliplier * m_speedReduction;
+        }
+
+        /// <summary>
         /// Final method to be called when player stops crouching
         /// </summary>
         private void CrouchEnd()
         {
             // Set flag
             m_isCrouching = false;
+
+            // Call event
+            OnCrouchEnd?.Invoke();
+
+            // Reset the movement speed
+            Motor.SpeedMutliplier = 1;
         }
 
         #endregion
@@ -207,6 +226,12 @@ namespace URC.Movement
             if (!shrinking && m_collider.height == m_targetSize)
             {
                 CrouchEnd();
+            }
+
+            // Notify if we are fully crouched
+            if (shrinking && m_collider.height == m_targetSize)
+            {
+                OnFullyCrouched();
             }
         }
 
@@ -254,7 +279,7 @@ namespace URC.Movement
 
         #endregion
 
-        #region Events
+        #region Reactions
 
         /// <summary>
         /// Subscribed to from motor.
@@ -267,7 +292,8 @@ namespace URC.Movement
             }
         }
 
+        
+
         #endregion
     }
-
 }
