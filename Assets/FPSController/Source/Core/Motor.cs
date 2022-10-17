@@ -362,8 +362,7 @@ namespace URC.Core
         /// <returns></returns>
         public bool IsBlocked()
         {
-            Vector3 playerTop = transform.position + ((Vector3.up * m_collider.height / 2) * transform.localScale.y);
-            return Physics.Raycast(playerTop, Vector3.up, 0.05f, m_groundLayers);
+            return Physics.Raycast(GetPlayerTop(), Vector3.up, 0.05f, m_groundLayers);
         }
 
         /// <summary>
@@ -620,6 +619,27 @@ namespace URC.Core
             CheckCollisionExit(collision);
         }
         #endregion
+
+        #region Misc
+        /// <summary>
+        /// Returns the position at the top of the player capsule
+        /// </summary>
+        /// <returns>Point in world spcace</returns>
+        public Vector3 GetPlayerTop()
+        {
+            Vector3 offset = Vector3.up * (m_collider.height / 2);
+            return transform.position + offset;
+        }
+
+        /// <summary>
+        /// Returns the position at the bottom of the player capsule
+        /// </summary>
+        /// <returns>Point in world space</returns>
+        public Vector3 GetPlayerBottom()
+        {
+            Vector3 offset = Vector3.down * (m_collider.height / 2);
+            return transform.position + offset;
+        }
 
         #region Timers
         /// <summary>
