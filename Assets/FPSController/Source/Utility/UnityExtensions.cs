@@ -30,6 +30,7 @@ namespace URC.Utility
             string fullName = obj.GetType().ToString();
             return fullName.Split(".")[fullName.Split(".").Length - 1];
         }
+
     }
 
 }
