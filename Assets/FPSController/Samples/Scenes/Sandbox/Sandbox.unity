@@ -795,7 +795,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_frequency:
-    Value: 3
+    Value: 2.5
     ScalesWithVelocity: 1
   m_amplitude:
     Value: 0.075
@@ -815,15 +815,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed6198193b41c6f48b7bb40cc8f87d8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_footstepSounds:
-  - {fileID: 8300000, guid: 75e8b7d7b9f8e2049b984405784c5dd3, type: 3}
-  - {fileID: 8300000, guid: cd38af9a35066094fb6683f7b8c96a60, type: 3}
-  - {fileID: 8300000, guid: cd01e5eb3b7eb7a499b519bc39107bb3, type: 3}
-  - {fileID: 8300000, guid: c6f717b1512ddf14b9b94d21e1ce30c9, type: 3}
-  - {fileID: 8300000, guid: bf815f0a06d861d4bb15bbcbea2a4afe, type: 3}
+  m_footstepSounds: {fileID: 0}
   m_playOrdered: 1
   m_pitchVariation: 0.1
-  m_volume: 0.3
   m_volumeVariation: 0.05
   m_frequency: 2.5
   m_frquencyVelocityScaling: 1

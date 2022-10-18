@@ -8,6 +8,7 @@ namespace URC.Audio
     /// A collection of sounds bundled together.
     /// Allows for easy and clean swapping of collections of sounds.
     /// </summary>
+    [CreateAssetMenu(menuName = "URC/Audio/Audio Bundle")]
     public class AudioBundle : ScriptableObject
     {
         /// <summary>
@@ -16,8 +17,12 @@ namespace URC.Audio
         [System.Serializable]
         public struct Audio
         {
+            [Tooltip("The audio clip to play")]
             public AudioClip Clip;
+            [Tooltip("Volume to play the audio at")]
+            [Range(0, 1)]
             public float Volume;
+            [Tooltip("Optional tag to identify the audio")]
             public string Tag;
         }
 
