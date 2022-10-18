@@ -72,6 +72,8 @@ namespace URC.Core
         public class AdvancedSettings
         {
             public LoggingLevel LoggingLevel = LoggingLevel.Critical;
+            [Tooltip("Tries to use more optimization techniques in order to make the controller more performant. Leads to a less smooth experience.")]
+            public bool m_useOptimizations;
         }
 
         #endregion
@@ -108,6 +110,7 @@ namespace URC.Core
         private bool m_isSloped;                    // Flag if the motor is considered on a slope (steeper ground angle than m_maxSlopeAngle)
         private float m_groundPreventionTimer;      // Timer for preventing the motor from being considered grounded.
         private float m_airTime;                    // Time spent ungrounded.
+        private float m_groundForceTime;            // Timer for forcing motor to be grounded
 
         // Component references
         private Rigidbody m_rigidbody;              // The rigidbody of the character
@@ -366,6 +369,24 @@ namespace URC.Core
         }
 
         /// <summary>
+        /// Sets the position of the player directly
+        /// </summary>
+        /// <param name="position">The position to set</param>
+        public void SetPosition(Vector3 position)
+        {
+            m_rigidbody.MovePosition(position);
+        }
+
+        /// <summary>
+        /// Forces the motor to be considered grounded for an amount of time
+        /// </summary>
+        /// <param name="t"></param>
+        public void ForceGrounded(float t)
+        {
+
+        }
+
+        /// <summary>
         /// Prevents the motor from being considered grounded for a period of time.
         /// Usually used when jumping to prevent the motor from sticking to the ground due to inconsistencies between fixed and update.
         /// </summary>
@@ -426,9 +447,20 @@ namespace URC.Core
         /// </summary>
         private void UpdateGrounding()
         {
+            // Always be considered grounded if forced to do so
+            if (m_groundForceTime > 0.0f)
+            {
+                m_isGrounded = true;
+                m_isSloped = false;
+            }
+            
             // Make sure we are touching ground
             if (m_groundSurface == null)
             {
+                // Call event if we left ground
+                if (m_isGrounded)
+                    OnUngrounded();
+                
                 m_isGrounded = false;
                 m_isSloped = false;
                 return;
@@ -445,6 +477,10 @@ namespace URC.Core
             // Normal grounded
             if (m_groundPreventionTimer <= 0.0f)
             {
+                // Call event if previously not grounded
+                if (!m_isGrounded)
+                    OnGrounded();
+
                 m_isGrounded = true;
                 m_isSloped = false;
                 return;
@@ -494,10 +530,6 @@ namespace URC.Core
             else
             {
                 m_groundSurface = ground;
-
-                // Only call event if surface is not slope
-                if (m_groundSurface.Angle < m_maxSlopeAngle)
-                    OnGrounded();
             }
         }
 
@@ -534,7 +566,6 @@ namespace URC.Core
                 if (m_groundSurface.Transform == collision.transform)
                 {
                     m_groundSurface = null;
-                    OnUngrounded();
                 }
             }
 
@@ -641,6 +672,24 @@ namespace URC.Core
             return transform.position + offset;
         }
 
+        /// <summary>
+        /// Returns the radius of the player collider
+        /// </summary>
+        /// <returns></returns>
+        public float GetPlayerRadius()
+        {
+            return m_collider.radius;
+        }
+
+        /// <summary>
+        /// Returns the height of the player collider
+        /// </summary>
+        /// <returns></returns>
+        public float GetPlayerHeight()
+        {
+            return m_collider.height;
+        }
+
         #endregion
 
         #region Timers
@@ -651,6 +700,7 @@ namespace URC.Core
         {
             GroundPreventionTimer();
             AirTimeTimer();
+            ForceGroundTimer();
         }
 
         /// <summary>
@@ -660,6 +710,15 @@ namespace URC.Core
         {
             if (m_groundPreventionTimer > 0.0f)
                 m_groundPreventionTimer -= Time.deltaTime;
+        }
+
+        /// <summary>
+        /// Updates the timer for forcing motor to be considered grounded
+        /// </summary>
+        private void ForceGroundTimer()
+        {
+            if (m_groundForceTime > 0.0f)
+                m_groundForceTime -= Time.deltaTime;
         }
 
         /// <summary>

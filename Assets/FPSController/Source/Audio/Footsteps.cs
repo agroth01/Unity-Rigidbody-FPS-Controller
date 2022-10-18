@@ -9,16 +9,12 @@ namespace URC.Audio
     public class Footsteps : Module
     {
         [Header("Sounds")]
-        [Tooltip("All possible footstep sounds")]
-        public AudioClip[] m_footstepSounds;
+        [Tooltip("Bundle of all footsteps. If left empty, it will use the default footsteps that comes with controller.")]
+        public AudioBundle m_footstepSounds;
         [Tooltip("Should the footsteps be played in the order they are in the array? If not, footsteps will be chosen at random.")]
         public bool m_playOrdered;
         [Tooltip("Random variation in pitch for footstep sounds. Can help make a small amount of footsteps sound less repetitive. Will not work unless an audio source is specified")]
         public float m_pitchVariation;
-
-        [Header("Playback")]
-        [Tooltip("The volume of the footsteps")]
-        public float m_volume;
         [Tooltip("Random variation to volume. Preferably keep this value very low.")]
         public float m_volumeVariation;
 
@@ -46,6 +42,12 @@ namespace URC.Audio
         private int m_footstepIndex;
         private float m_resetTimer;
 
+        private void Start()
+        {
+            // If there are no sounds, use the default footsteps
+            if (m_footstepSounds == null) FindDefaultFootsteps();
+        }
+
         private void Update()
         {
             if (Motor.Grounded && Motor.HorizontalSpeed > 0.0f && InputHelper.DesiresMove())
@@ -54,6 +56,23 @@ namespace URC.Audio
             }
 
             CheckReset();
+        }
+
+        /// <summary>
+        /// Attempts to load the default footsteps from resources folder.
+        /// Will throw a warning if the default footsteps are not found.
+        /// </summary>
+        private void FindDefaultFootsteps()
+        {
+            // Attempt to load it from resources
+            m_footstepSounds = Resources.Load<AudioBundle>("AudioBundles/Default footsteps");
+
+            // If it's still null, throw a warning
+            if (m_footstepSounds == null)
+            {
+                Logging.Log("No audio bundle was assigned to footsteps, and default footsteps could not be found. Make sure to create one via asset menu!.", LoggingLevel.Critical);
+                this.enabled = false;
+            }
         }
 
         /// <summary>
@@ -117,7 +136,7 @@ namespace URC.Audio
         private void PlayFootstepSound()
         {
             // Get clip
-            AudioClip footstep = GetFootstepSound();
+            AudioBundle.Audio footstep = GetFootstepSound();
 
             // Play clip
             PlayAudio(footstep);
@@ -127,37 +146,37 @@ namespace URC.Audio
         /// Returns a footstep based on settings
         /// </summary>
         /// <returns></returns>
-        private AudioClip GetFootstepSound()
+        private AudioBundle.Audio GetFootstepSound()
         {
             // Check if we should play ordered or random
             if (m_playOrdered)
             {
                 // Check if we have reached the end of the array
-                if (m_footstepIndex >= m_footstepSounds.Length)
+                if (m_footstepIndex >= m_footstepSounds.Size)
                 {
                     // Reset index
                     m_footstepIndex = 0;
                 }
 
                 // Return footstep
-                return m_footstepSounds[m_footstepIndex++];
+                return m_footstepSounds.GetAudio(m_footstepIndex);
             }
             else
             {
                 // Return random footstep
-                return m_footstepSounds[Random.Range(0, m_footstepSounds.Length)];
+                return m_footstepSounds.GetRandomAudio();
             }
         }
 
         /// <summary>
-        /// Plays the given clip with randomization options
+        /// Plays the given audio 
         /// </summary>
-        /// <param name="clip">The clip to play</param>
-        private void PlayAudio(AudioClip clip)
+        /// <param name="audio">The audio to play</param>
+        private void PlayAudio(AudioBundle.Audio audio)
         {
             // Get parameters
             float pitch = 1 + Random.Range(-m_pitchVariation, m_pitchVariation);
-            float volume = m_volume + Random.Range(-m_volumeVariation, m_volumeVariation);
+            float volume = audio.Volume + Random.Range(-m_volumeVariation, m_volumeVariation);
 
             // Play at audio source if one is specified
             if (m_audioSource != null)
@@ -167,7 +186,7 @@ namespace URC.Audio
                 m_audioSource.volume = volume;
 
                 // Play it
-                m_audioSource.clip = clip;
+                m_audioSource.clip = audio.Clip;
                 m_audioSource.Play();
             }
 
@@ -181,7 +200,7 @@ namespace URC.Audio
                 playPoint += Motor.HorizontalVelocity * Time.deltaTime;
 
                 // Play it.
-                AudioSource.PlayClipAtPoint(clip, playPoint, volume);
+                AudioSource.PlayClipAtPoint(audio.Clip, playPoint, volume);
             }
         }
 
