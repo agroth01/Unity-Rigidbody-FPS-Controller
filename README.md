@@ -30,9 +30,9 @@ your own controllers.
 * Crouching
 * Jumping
 * Sprinting
-
-### Additional features
 * Camera utilities
+
+### Planned features
 * Stamina system
 * Interaction system
 * Custom surface properties
