@@ -39,6 +39,8 @@ namespace URC.Audio
         [Header("Overrides")]
         [Tooltip("Override footsteps for specific layers")]
         public LayerOverride[] m_layerOverrides;
+        [Tooltip("When coming into contact with a surface that has custom audio properties, should layer overrides have higher priority?")]
+        public bool m_overrideSurfaces;
 
         [Header("Timing")]
         [Tooltip("How often should the footsteps be played?")]
