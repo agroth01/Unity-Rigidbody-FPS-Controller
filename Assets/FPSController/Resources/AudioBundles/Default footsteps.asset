@@ -16,15 +16,20 @@ MonoBehaviour:
   - Clip: {fileID: 8300000, guid: 75e8b7d7b9f8e2049b984405784c5dd3, type: 3}
     Volume: 0.3
     Tag: 
+    Weight: 1
   - Clip: {fileID: 8300000, guid: cd38af9a35066094fb6683f7b8c96a60, type: 3}
     Volume: 0.3
     Tag: 
+    Weight: 1
   - Clip: {fileID: 8300000, guid: cd01e5eb3b7eb7a499b519bc39107bb3, type: 3}
     Volume: 0.3
     Tag: 
+    Weight: 1
   - Clip: {fileID: 8300000, guid: c6f717b1512ddf14b9b94d21e1ce30c9, type: 3}
     Volume: 0.3
     Tag: 
+    Weight: 1
   - Clip: {fileID: 8300000, guid: bf815f0a06d861d4bb15bbcbea2a4afe, type: 3}
     Volume: 0.3
     Tag: 
+    Weight: 1

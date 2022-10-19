@@ -155,14 +155,6 @@ namespace URC.Core
             ApplyGravity();
         }
 
-        private void OnGUI()
-        {
-            // Display total speed, horizontal speed and vertical speed
-            GUILayout.Label("Total speed: " + Speed);
-            GUILayout.Label("Horizontal speed: " + HorizontalSpeed);
-            GUILayout.Label("Vertical speed: " + VerticalSpeed);           
-        }
-
         #endregion
 
         #region Initalization

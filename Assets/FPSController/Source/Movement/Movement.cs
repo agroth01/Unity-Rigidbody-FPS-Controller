@@ -38,7 +38,6 @@ namespace URC.Movement
         [Header("Air settings")]
         [Tooltip("Settings while motor is in air")]
         public MovementSettings m_airSettings;
-        public float m_airCorrectionSpeed;
 
         [Header("Step settings")]
         [Tooltip("The highest step that the controller can step up")]
