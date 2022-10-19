@@ -15,15 +15,17 @@ namespace URC.Audio
         /// Have an audio with a default volume
         /// </summary>
         [System.Serializable]
-        public struct Audio
+        public class Audio
         {
             [Tooltip("The audio clip to play")]
             public AudioClip Clip;
             [Tooltip("Volume to play the audio at")]
             [Range(0, 1)]
-            public float Volume;
+            public float Volume = 1.0f;
             [Tooltip("Optional tag to identify the audio")]
-            public string Tag;
+            public string Tag = "Default";
+            [Tooltip("The weight of this audio clip when considered in weighted random selection")]
+            public float Weight = 1.0f;
         }
 
         [Header("Audio clips")]
@@ -39,12 +41,37 @@ namespace URC.Audio
         }
 
         /// <summary>
-        /// Returns a random audio from the bundle
+        /// Returns a random audio from the bundle, ignoring weights
         /// </summary>
         /// <returns></returns>
         public Audio GetRandomAudio()
         {
             return m_audioCollection[Random.Range(0, m_audioCollection.Length)];
+        }
+
+        /// <summary>
+        /// Returns a weighted random choice of audio from the bundle. Useful if you want to have some audio play more often than others.
+        /// </summary>
+        /// <returns></returns>
+        public Audio GetWeightedAudio()
+        {
+            float totalWeight = 0;
+            for (int i = 0; i < m_audioCollection.Length; i++)
+            {
+                totalWeight += m_audioCollection[i].Weight;
+            }
+
+            float randomWeight = Random.Range(0, totalWeight);
+            for (int i = 0; i < m_audioCollection.Length; i++)
+            {
+                if (randomWeight < m_audioCollection[i].Weight)
+                {
+                    return m_audioCollection[i];
+                }
+                randomWeight -= m_audioCollection[i].Weight;
+            }
+
+            return m_audioCollection[0];
         }
 
         /// <summary>
