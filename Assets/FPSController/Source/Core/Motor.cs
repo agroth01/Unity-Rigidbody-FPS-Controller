@@ -419,6 +419,14 @@ namespace URC.Core
         }
 
         /// <summary>
+        /// Does the ground normal point up?
+        /// </summary>
+        public bool EvenGround
+        {
+            get { return m_groundSurface.Angle == 0f; }
+        }
+
+        /// <summary>
         /// The normal vector of the ground
         /// </summary>
         public Vector3 GroundNormal
