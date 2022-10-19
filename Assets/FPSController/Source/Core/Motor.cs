@@ -121,7 +121,8 @@ namespace URC.Core
         #region Events
 
         public event Action OnGroundEnter;        // Called when the motor is grounded
-        public event Action OnGroundExit;      // Called when the motor is ungrounded
+        public event Action OnGroundExit;         // Called when the motor is ungrounded
+        public event Action OnNewSurfaceEnter;    // Called when the motor enters a new surface
 
         #endregion
 
@@ -411,6 +412,14 @@ namespace URC.Core
         }
 
         /// <summary>
+        /// The layer that current ground surface is on
+        /// </summary>
+        public int GroundLayer
+        {
+            get { return m_groundSurface.Transform.gameObject.layer; }
+        }
+
+        /// <summary>
         /// Is the motor currently on a slope
         /// </summary>
         public bool OnSlope
@@ -530,6 +539,10 @@ namespace URC.Core
             // Do we already have a ground surface cached?
             if (m_groundSurface != null)
             {
+                // If the transform has changed, signal event
+                if (ground.Transform != m_groundSurface.Transform)
+                    OnNewSurface();
+
                 // Copy over values instead of creating a new instance to prevent multiple on grounded events
                 m_groundSurface.Copy(ground);
             }
@@ -538,6 +551,7 @@ namespace URC.Core
             else
             {
                 m_groundSurface = ground;
+                OnNewSurface(); // Call event since this is a new surface anyways
             }
         }
 
@@ -626,6 +640,14 @@ namespace URC.Core
         private void OnWallExit()
         {
             Logging.Log("Motor has exited a wall", LoggingLevel.Dev);
+        }
+
+        /// <summary>
+        /// Called when the motor comes into a new surface different to the current one
+        /// </summary>
+        private void OnNewSurface()
+        {
+            OnNewSurfaceEnter?.Invoke();
         }
 
         #endregion

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58080931bf2c8b14d91d9cf31f70a537, type: 3}
+  m_Name: Metal Footsteps
+  m_EditorClassIdentifier: 
+  m_audioCollection:
+  - Clip: {fileID: 8300000, guid: 84f9ee26a9220f344a9dcd61e0cd45f1, type: 3}
+    Volume: 0.3
+    Tag: 
+  - Clip: {fileID: 8300000, guid: ea492de749e14d5458d9ecd1c59bd133, type: 3}
+    Volume: 0.3
+    Tag: 
+  - Clip: {fileID: 8300000, guid: a737286222d6e9944aa498f3aaa9500d, type: 3}
+    Volume: 0.3
+    Tag: 
+  - Clip: {fileID: 8300000, guid: b1b7c9f4e5ef5744391156f13f0b5dd9, type: 3}
+    Volume: 0.3
+    Tag: 
+  - Clip: {fileID: 8300000, guid: 7b63e9d59612e3b4a8f8f352b9b037d5, type: 3}
+    Volume: 0.3
+    Tag: 
