@@ -147,6 +147,12 @@ namespace URC.Movement
             // flag that we are crouching
             m_isCrouching = true;
 
+            // If already grounded, force grounding if not on even ground
+            if (Motor.Grounded && !Motor.EvenGround)
+            {
+                Motor.ForceGrounded(0.25f);
+            }
+
             // Call event
             OnCrouchStart?.Invoke();
         }
@@ -246,7 +252,6 @@ namespace URC.Movement
             // Get the new position
             Vector3 newPosition = Motor.transform.position;
 
-
             // Update position normally as long as we are not growing and in air
             if (Motor.Grounded || shrinking)
             {
@@ -254,8 +259,10 @@ namespace URC.Movement
             }
 
             // Account for velocity of rb as we are setting position directly
-            newPosition += Motor.HorizontalVelocity * Time.deltaTime;
-            return newPosition;
+            Vector3 vel = Motor.HorizontalVelocity * Time.deltaTime;
+            if (Motor.Grounded)
+                vel = Vector3.ProjectOnPlane(vel, Motor.GroundNormal);
+            return newPosition + vel;
         }
 
         /// <summary>

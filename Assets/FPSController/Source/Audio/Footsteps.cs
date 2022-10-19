@@ -8,8 +8,20 @@ namespace URC.Audio
 {
     public class Footsteps : Module
     {
+        /// <summary>
+        /// Change the footsteps to something else for a specific layer.
+        /// </summary>
+        [System.Serializable]
+        public struct LayerOverride
+        {
+            [Tooltip("The layers to override footsteps for")]
+            public LayerMask Layers;
+            [Tooltip("The footsteps to use")]
+            public AudioBundle Footsteps;
+        }
+
         [Header("Sounds")]
-        [Tooltip("Bundle of all footsteps. If left empty, it will use the default footsteps that comes with controller.")]
+        [Tooltip("Default footsteps to use. If left empty, it will use the default footsteps that comes with controller.")]
         public AudioBundle m_footstepSounds;
         [Tooltip("Should the footsteps be played in the order they are in the array? If not, footsteps will be chosen at random.")]
         public bool m_playOrdered;
@@ -17,6 +29,10 @@ namespace URC.Audio
         public float m_pitchVariation;
         [Tooltip("Random variation to volume. Preferably keep this value very low.")]
         public float m_volumeVariation;
+
+        [Header("Overrides")]
+        [Tooltip("Override footsteps for specific layers")]
+        public LayerOverride[] m_layerOverrides;
 
         [Header("Timing")]
         [Tooltip("How often should the footsteps be played?")]
@@ -41,11 +57,18 @@ namespace URC.Audio
         private float m_footstepTimer;
         private int m_footstepIndex;
         private float m_resetTimer;
+        private AudioBundle m_defaultFootsteps;
 
         private void Start()
         {
             // If there are no sounds, use the default footsteps
             if (m_footstepSounds == null) FindDefaultFootsteps();
+
+            // Cache the default footsteps
+            m_defaultFootsteps = m_footstepSounds;
+
+            // Make sure there are no overlapping override layers
+            VerifyOverrideLayers();
         }
 
         private void Update()
@@ -56,6 +79,16 @@ namespace URC.Audio
             }
 
             CheckReset();
+        }
+
+        private void OnEnable()
+        {
+            Motor.OnNewSurfaceEnter += CheckForOverride;
+        }
+
+        private void OnDisable()
+        {
+            Motor.OnNewSurfaceEnter -= CheckForOverride;
         }
 
         /// <summary>
@@ -73,6 +106,64 @@ namespace URC.Audio
                 Logging.Log("No audio bundle was assigned to footsteps, and default footsteps could not be found. Make sure to create one via asset menu!.", LoggingLevel.Critical);
                 this.enabled = false;
             }
+        }
+
+        /// <summary>
+        /// Ensures that there are no overlapping layers in the layermasks for overriding.
+        /// Throws out a warning and disables script if there are overlapping layers.
+        /// </summary>
+        private void VerifyOverrideLayers()
+        {
+            // Loop through each override
+            for (int i = 0; i < m_layerOverrides.Length; i++)
+            {
+                // Loop through each override again
+                for (int j = 0; j < m_layerOverrides.Length; j++)
+                {
+                    // If the two overrides are the same, skip
+                    if (i == j) continue;
+
+                    // If the two overrides have overlapping layers, throw a warning and disable script
+                    if ((m_layerOverrides[i].Layers.value & m_layerOverrides[j].Layers.value) != 0)
+                    {
+                        Logging.Log("Footsteps has overlapping layers in its overrides. Please fix this before continuing.", LoggingLevel.Critical);
+                        this.enabled = false;
+                        return;
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Called every time the motor enters a new surface.
+        /// Checks if the layer of the new surface is in the overrides and swap footsteps if true.
+        /// Revert to default footsteps if the layer is not in the overrides.
+        /// </summary>
+        private void CheckForOverride()
+        {
+            // Ignore if no overrides
+            if (m_layerOverrides.Length == 0) return;
+
+            // Get layer of surface
+            int layer = Motor.GroundLayer;
+            
+            // Loop through all overrides and check if the layer is in the override
+            bool overridden = false;
+            for (int i = 0; i < m_layerOverrides.Length; i++)
+            {
+                // Is layer in override?
+                if (m_layerOverrides[i].Layers.Contains(layer))
+                {
+                    // Set footsteps
+                    m_footstepSounds = m_layerOverrides[i].Footsteps;
+                    overridden = true;
+                    Logging.Log("Overriding footsteps for layer " + LayerMask.LayerToName(layer), LoggingLevel.Dev);
+                }
+            }
+
+            // If the layer is not in the overrides, revert to default footsteps
+            if (!overridden) m_footstepSounds = m_defaultFootsteps;
         }
 
         /// <summary>
@@ -135,6 +226,13 @@ namespace URC.Audio
         /// </summary>
         private void PlayFootstepSound()
         {
+            // For ease of use, catch and log if there are no clips in the audio bundle
+            if (m_footstepSounds.Size == 0)
+            {
+                Logging.Log("There are no audio in the audio budle (" + m_footstepSounds.name + "). Make sure there are at least 1.", LoggingLevel.Critical);
+                return;
+            }
+
             // Get clip
             AudioBundle.Audio footstep = GetFootstepSound();
 
