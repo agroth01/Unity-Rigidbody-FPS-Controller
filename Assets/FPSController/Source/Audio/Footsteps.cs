@@ -8,6 +8,8 @@ namespace URC.Audio
 {
     public class Footsteps : Module
     {
+        #region Structs
+
         /// <summary>
         /// Change the footsteps to something else for a specific layer.
         /// </summary>
@@ -19,6 +21,10 @@ namespace URC.Audio
             [Tooltip("The footsteps to use")]
             public AudioBundle Footsteps;
         }
+
+        #endregion
+
+        #region Public variables
 
         [Header("Sounds")]
         [Tooltip("Default footsteps to use. If left empty, it will use the default footsteps that comes with controller.")]
@@ -53,11 +59,19 @@ namespace URC.Audio
         [Tooltip("Specify the audio source to play the footsteps from. If none is specified, sounds will be played with PlayClipAtPoint()")]
         public AudioSource m_audioSource;
 
+        #endregion
+
+        #region Private variables
+
         // Footsteps
         private float m_footstepTimer;
         private int m_footstepIndex;
         private float m_resetTimer;
         private AudioBundle m_defaultFootsteps;
+
+        #endregion
+
+        #region Unity methods
 
         private void Start()
         {
@@ -90,6 +104,10 @@ namespace URC.Audio
         {
             Motor.OnNewSurfaceEnter -= CheckForOverride;
         }
+
+        #endregion
+
+        #region Initialization
 
         /// <summary>
         /// Attempts to load the default footsteps from resources folder.
@@ -134,38 +152,10 @@ namespace URC.Audio
             }
         }
 
+        #endregion
 
-        /// <summary>
-        /// Called every time the motor enters a new surface.
-        /// Checks if the layer of the new surface is in the overrides and swap footsteps if true.
-        /// Revert to default footsteps if the layer is not in the overrides.
-        /// </summary>
-        private void CheckForOverride()
-        {
-            // Ignore if no overrides
-            if (m_layerOverrides.Length == 0) return;
-
-            // Get layer of surface
-            int layer = Motor.GroundLayer;
-            
-            // Loop through all overrides and check if the layer is in the override
-            bool overridden = false;
-            for (int i = 0; i < m_layerOverrides.Length; i++)
-            {
-                // Is layer in override?
-                if (m_layerOverrides[i].Layers.Contains(layer))
-                {
-                    // Set footsteps
-                    m_footstepSounds = m_layerOverrides[i].Footsteps;
-                    overridden = true;
-                    Logging.Log("Overriding footsteps for layer " + LayerMask.LayerToName(layer), LoggingLevel.Dev);
-                }
-            }
-
-            // If the layer is not in the overrides, revert to default footsteps
-            if (!overridden) m_footstepSounds = m_defaultFootsteps;
-        }
-
+        #region Footsteps
+        
         /// <summary>
         /// Updates the footstep timer and plays footstep sound when needed.
         /// This is a public method and can be used to enable footsteps for times when the motor is not grounded, like if you were to implement wallrunning.
@@ -194,6 +184,37 @@ namespace URC.Audio
         public void ForceFootstep()
         {
             PlayFootstepSound();
+        }
+
+        /// <summary>
+        /// Called every time the motor enters a new surface.
+        /// Checks if the layer of the new surface is in the overrides and swap footsteps if true.
+        /// Revert to default footsteps if the layer is not in the overrides.
+        /// </summary>
+        private void CheckForOverride()
+        {
+            // Ignore if no overrides
+            if (m_layerOverrides.Length == 0) return;
+
+            // Get layer of surface
+            int layer = Motor.GroundLayer;
+
+            // Loop through all overrides and check if the layer is in the override
+            bool overridden = false;
+            for (int i = 0; i < m_layerOverrides.Length; i++)
+            {
+                // Is layer in override?
+                if (m_layerOverrides[i].Layers.Contains(layer))
+                {
+                    // Set footsteps
+                    m_footstepSounds = m_layerOverrides[i].Footsteps;
+                    overridden = true;
+                    Logging.Log("Overriding footsteps for layer " + LayerMask.LayerToName(layer), LoggingLevel.Dev);
+                }
+            }
+
+            // If the layer is not in the overrides, revert to default footsteps
+            if (!overridden) m_footstepSounds = m_defaultFootsteps;
         }
 
         /// <summary>
@@ -311,5 +332,7 @@ namespace URC.Audio
             float frequency = (m_frquencyVelocityScaling) ? m_frequency / Motor.HorizontalSpeed : m_frequency;
             return frequency;
         }
+
+        #endregion
     }
 }
