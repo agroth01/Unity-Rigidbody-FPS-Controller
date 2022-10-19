@@ -29,15 +29,14 @@ your own controllers.
 * Headbobbing
 * Crouching
 * Jumping
-* Sprinting
 * Camera utilities
 
 ### Planned features
-* Stamina system
 * Interaction system
 * Custom surface properties
 * Custom surface audio
 * "Plug and play" prefabs
+* Sprinting
 
 # Contributions
 If you want to contribute to this project, please feel free to fork this project and create pull requests. I will however be very strict with accepting, in order to preserve 
