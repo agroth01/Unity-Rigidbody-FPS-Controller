@@ -416,7 +416,7 @@ MonoBehaviour:
     Value: 2.5
     ScalesWithVelocity: 1
   m_amplitude:
-    Value: 0.075
+    Value: 0.08
     ScalesWithVelocity: 1
   m_minVelocity: 1
   m_resetSpeed: 0.1
@@ -481,7 +481,6 @@ MonoBehaviour:
     TopSpeed: 5
     Acceleration: 15
     Deceleration: 0
-  m_airCorrectionSpeed: 0.5
   m_stepHeight: 0
   m_stepSpeed: 0
 --- !u!1 &1075378846
