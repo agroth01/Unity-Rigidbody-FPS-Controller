@@ -177,7 +177,7 @@ namespace URC.Movement
         private void OnFullyCrouched()
         {
             // Set the movement speed to crouching speed
-            Motor.SpeedMutliplier = Motor.SpeedMutliplier * m_speedReduction;
+            Motor.ModifySpeedMultiplier(m_speedReduction, Motor.ModifyType.Multiplicative);
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace URC.Movement
             OnCrouchEnd?.Invoke();
 
             // Reset the movement speed
-            Motor.SpeedMutliplier = 1;
+            Motor.ModifySpeedMultiplier(1 / m_speedReduction, Motor.ModifyType.Multiplicative);
         }
 
         #endregion

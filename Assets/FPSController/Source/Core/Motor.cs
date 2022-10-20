@@ -13,6 +13,19 @@ namespace URC.Core
     [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
     public class Motor : MonoBehaviour
     {
+        #region Enums
+        /// <summary>
+        /// Different types of methods to modify values
+        /// </summary>
+        public enum ModifyType
+        {
+            Additive,       // Add to value
+            Multiplicative, // Multiply the value
+            Override        // Set the value directly
+        }
+
+        #endregion
+
         #region Subclasses
         /// <summary>
         /// A class containing information and functionality for surfaces that the motor collides with
@@ -319,6 +332,29 @@ namespace URC.Core
         public float VerticalSpeed
         {
             get { return m_rigidbody.velocity.y; }
+        }
+
+        /// <summary>
+        /// Allow changing of the speed multiplier
+        /// </summary>
+        /// <param name="value">The value to modify with</param>
+        /// <param name="modifyType">How value should be used</param>
+        public void ModifySpeedMultiplier(float value, ModifyType modifyType)
+        {
+            if (modifyType == ModifyType.Additive)
+            {
+                m_speedMultiplier += value;
+            }
+
+            else if (modifyType == ModifyType.Multiplicative)
+            {
+                m_speedMultiplier *= value;
+            }
+
+            else if (modifyType == ModifyType.Override)
+            {
+                m_speedMultiplier = value;
+            }
         }
 
         /// <summary>
@@ -673,7 +709,7 @@ namespace URC.Core
         }
         #endregion
 
-        #region Misc
+        #region Player dimensions
         /// <summary>
         /// Returns the position at the top of the player capsule
         /// </summary>
