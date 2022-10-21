@@ -20,10 +20,24 @@ namespace URC.Camera
         [System.Serializable]
         public struct ScalingSetting
         {
+            /// <summary>
+            /// How the value should be scaled
+            /// </summary>
+            public enum ScalingMode
+            {
+                Linear,        // Value scales linearly
+                Exponential    // Value scaled exponentially
+            }
+            
             [Tooltip("The value of this setting.")]
             public float Value;
+            [Header("Scaling")]
             [Tooltip("Does it scale with velocity?")]
             public bool ScalesWithVelocity;
+            [Tooltip("How it should scale")]
+            public ScalingMode Scaling;
+            [Tooltip("Multiplier used when scaling. When exponential, this is the exponent.")]
+            public float ScalingMultiplier;
         }
 
         #endregion
@@ -36,6 +50,8 @@ namespace URC.Camera
         public ScalingSetting m_amplitude;
 
         [Header("Others")]
+        [Tooltip("Smoothing between headbob positions. Makes changes in amplitude due to velocity less sudden.")]
+        public float m_smoothness = 1.0f;
         [Tooltip("Minimum velocity to start headbobbing. Can prevent headbob from being active when walking into walls.")]
         public float m_minVelocity;
         [Tooltip("How fast camera should move back to original position when not active.")]
@@ -71,7 +87,7 @@ namespace URC.Camera
             m_timer = 0;
         }
 
-        private void Update()
+        private void LateUpdate()
         {
             // If we are meeting requirements for headbob, update the headbob
             if (Motor.HorizontalSpeed > m_minVelocity && Motor.Grounded && InputHelper.DesiresMove())
@@ -102,25 +118,48 @@ namespace URC.Camera
             float frequency = m_frequency.Value;
             if (m_frequency.ScalesWithVelocity)
             {
-                frequency *= speed;
+                frequency *= GetScaledValue(speed,m_frequency);
             }
 
             // Get amplitude
             float amplitude = m_amplitude.Value / 10.0f; // Divide by 10 to make editor number larger
             if (m_amplitude.ScalesWithVelocity)
             {
-                amplitude *= speed;
+                amplitude *= GetScaledValue(speed, m_amplitude);
             }
 
             // Get headbob
             float headbob = Mathf.Sin(m_timer * frequency) * amplitude;
-            m_targetY = headbob;
+            m_targetY = Mathf.MoveTowards(m_targetY, headbob, m_smoothness * Time.deltaTime);
 
             // Increment timer
             m_timer += Time.deltaTime;
 
             // Set delay
             m_resetDelayTimer = m_resetDelay;
+        }
+
+        private float GetScaledValue(float value, ScalingSetting scalingSetting)
+        {
+            // Get scaling mode
+            ScalingSetting.ScalingMode scalingMode = scalingSetting.Scaling;
+
+            // Get multiplier
+            float multiplier = scalingSetting.ScalingMultiplier;
+
+            // Get scaled value
+            float scaledValue = 0;
+            switch (scalingMode)
+            {
+                case ScalingSetting.ScalingMode.Linear:
+                    scaledValue = value * multiplier;
+                    break;
+                case ScalingSetting.ScalingMode.Exponential:
+                    scaledValue = Mathf.Pow(value, multiplier);
+                    break;
+            }
+
+            return scaledValue;
         }
 
         /// <summary>
