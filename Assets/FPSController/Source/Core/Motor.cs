@@ -335,6 +335,23 @@ namespace URC.Core
         }
 
         /// <summary>
+        /// Prevents the rigidbody from being affected by forces.
+        /// This essentially freezes the motor in place.
+        /// </summary>
+        public void DisableRigidbody()
+        {
+            m_rigidbody.isKinematic = true;
+        }
+
+        /// <summary>
+        /// Allows the rigidbody to be affected by forces.
+        /// </summary>
+        public void EnableRigidbody()
+        {
+            m_rigidbody.isKinematic = false;
+        }
+
+        /// <summary>
         /// Allow changing of the speed multiplier
         /// </summary>
         /// <param name="value">The value to modify with</param>

@@ -353,6 +353,8 @@ GameObject:
   - component: {fileID: 679000479}
   - component: {fileID: 679000478}
   - component: {fileID: 679000477}
+  - component: {fileID: 679000482}
+  - component: {fileID: 679000483}
   m_Layer: 0
   m_Name: URC Modules
   m_TagString: Untagged
@@ -382,7 +384,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 679000475}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ed6198193b41c6f48b7bb40cc8f87d8b, type: 3}
   m_Name: 
@@ -413,14 +415,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_frequency:
-    Value: 2.5
+    Value: 2.25
     ScalesWithVelocity: 1
+    Scaling: 0
+    ScalingMultiplier: 1.1
   m_amplitude:
-    Value: 0.08
+    Value: 0.25
     ScalesWithVelocity: 1
+    Scaling: 1
+    ScalingMultiplier: 0.4
+  m_smoothness: 5
   m_minVelocity: 1
-  m_resetSpeed: 0.1
-  m_resetDelay: 0.1
+  m_resetSpeed: 0.2
+  m_resetDelay: 0.5
 --- !u!114 &679000479
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -461,6 +468,10 @@ MonoBehaviour:
   m_jumpQueueTime: 0.05
   m_jumpHoldGravityMultiplier: 1
   m_minJumpCooldown: 0.2
+  m_playJumpSound: 1
+  m_jumpAudioSource: {fileID: 0}
+  m_jumpSounds: {fileID: 0}
+  m_useWeightsForAudio: 0
 --- !u!114 &679000481
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -483,6 +494,50 @@ MonoBehaviour:
     Deceleration: 0
   m_stepHeight: 0
   m_stepSpeed: 0
+--- !u!114 &679000482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 679000475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41b83194dcceccd49980aeb2bc6c4265, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isToggle: 0
+  m_speedMultiplier: 2
+  m_sprintStartDelay: 0
+  m_mustStartGrounded: 1
+  m_requireGrounding: 1
+  m_requireMovement: 0
+  m_sprintingFov: 0
+  m_FovChangeSpeed: 0
+  m_FovResetSpeed: 0
+--- !u!114 &679000483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 679000475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d1395f73da0ce346947002ed84641b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_footstepMode: 3
+  m_audioSource: {fileID: 0}
+  m_footstepSounds: {fileID: 11400000, guid: bcfe2dfcaf902d14f82cc96157024081, type: 2}
+  m_selectionMode: 0
+  m_pitchVariation: 0.2
+  m_volumeVariation: 0.05
+  m_resetDelay: 0
+  m_footstepPrewarming: 0
+  m_fixedFrequency: 1
+  m_velocityThreshold: 1
+  m_velocityDrivenFrequency: 7
 --- !u!1 &1075378846
 GameObject:
   m_ObjectHideFlags: 0
@@ -779,6 +834,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_hideCursorOnAwake: 1
+  m_defaultFov: 0
 --- !u!81 &1800990689
 AudioListener:
   m_ObjectHideFlags: 0

@@ -53,6 +53,34 @@ namespace URC.Core
         }
 
         /// <summary>
+        /// Attempts to find a class with the given type on both the object of this
+        /// module and parent.
+        /// </summary>
+        /// <typeparam name="T">The type to find</typeparam>
+        /// <returns></returns>
+        public T FindClass<T>() where T : Component
+        {
+            T component;
+
+            // Check if it is on this object
+            component = GetComponent<T>();
+            if (component != null)
+            {
+                return component;
+            }
+
+            // Check if it is on parent object
+            component = GetComponentInParent<T>();
+            if (component != null)
+            {
+                return component;
+            }
+
+            // Default return value
+            return component;
+        }
+
+        /// <summary>
         /// Looks for the motor class on both this gameObject and parent object
         /// </summary>
         private bool GetMotor()
