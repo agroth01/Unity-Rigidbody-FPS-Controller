@@ -109,17 +109,20 @@ namespace URC.Camera
 
         #region Bobbing
 
+        /// <summary>
+        /// Get the position of the headbob based on the current timer, ignoring amplitude scaling.
+        /// returns a float between -1 to 1 based on the timer.
+        /// </summary>
+        /// <returns></returns>
+        public float GetNormalizedBobValue()
+        {
+            return Mathf.Sin(m_timer * GetFrequency());
+        }
+
         private void UpdateHeadbob()
         {
             // Get speed
             float speed = Motor.HorizontalSpeed;
-
-            // Get frequency
-            float frequency = m_frequency.Value;
-            if (m_frequency.ScalesWithVelocity)
-            {
-                frequency *= GetScaledValue(speed,m_frequency);
-            }
 
             // Get amplitude
             float amplitude = m_amplitude.Value / 10.0f; // Divide by 10 to make editor number larger
@@ -129,7 +132,7 @@ namespace URC.Camera
             }
 
             // Get headbob
-            float headbob = Mathf.Sin(m_timer * frequency) * amplitude;
+            float headbob = Mathf.Sin(m_timer * GetFrequency()) * amplitude;
             m_targetY = Mathf.MoveTowards(m_targetY, headbob, m_smoothness * Time.deltaTime);
 
             // Increment timer
@@ -137,6 +140,20 @@ namespace URC.Camera
 
             // Set delay
             m_resetDelayTimer = m_resetDelay;
+        }
+
+        /// <summary>
+        /// Gets the frequency to use
+        /// </summary>
+        /// <returns></returns>
+        private float GetFrequency()
+        {
+            float frequency = m_frequency.Value;
+            if (m_frequency.ScalesWithVelocity)
+            {
+                frequency *= GetScaledValue(Motor.HorizontalSpeed, m_frequency);
+            }
+            return frequency;
         }
 
         private float GetScaledValue(float value, ScalingSetting scalingSetting)

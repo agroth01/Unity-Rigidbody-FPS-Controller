@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using URC.Core;
+using URC.Audio;
+using URC.Utility;
+using UnityEngine.SceneManagement;
 
 namespace URC.Movement
 {
@@ -52,10 +55,25 @@ namespace URC.Movement
         [Tooltip("Minimum amount of time between jumps")]
         public float m_minJumpCooldown;
 
+        [Header("Audio settings")]
+        [Tooltip("Should jumping sounds be enabled?")]
+        public bool m_playJumpSound;
+        [Tooltip("The audio source the sounds will be played from. If left empty, the audio will be played in the world instead.")]
+        public AudioSource m_jumpAudioSource;
+        [Tooltip("The sound to play when jumping. If no sound is set, the default sound will be played.")]
+        public AudioBundle m_jumpSounds;
+        [Tooltip("Use weights when picking random sound?")]
+        public bool m_useWeightsForAudio;
+
         // Jump
         private int m_sequenceIndex;    // How far along the sequence we are
         private float m_jumpRequest;    // Time where jump will be excuted automatically if becoming grounded
         private float m_jumpCooldown;   // Time where player cannot queue jump
+
+        private void Start()
+        {
+            FindDefaultSounds();
+        }
 
         private void OnEnable()
         {
@@ -76,6 +94,23 @@ namespace URC.Movement
         private void FixedUpdate()
         {
             ReverseGravity();
+        }
+
+        /// <summary>
+        /// Attempts to load the default jumping sounds from resources folder.
+        /// Will throw a warning if the default sounds are not found.
+        /// </summary>
+        private void FindDefaultSounds()
+        {
+            // Attempt to load it from resources
+            m_jumpSounds = Resources.Load<AudioBundle>("AudioBundles/Default jumps");
+
+            // If it's still null, throw a warning
+            if (m_jumpSounds == null)
+            {
+                Logging.Log("No audio bundle was assigned to jump sounds, and default sounds could not be found. Jumping sounds will not be played!.", LoggingLevel.Critical);
+                m_playJumpSound = false;
+            }
         }
 
         /// <summary>
@@ -188,6 +223,28 @@ namespace URC.Movement
             // Reset request and add cooldown
             m_jumpRequest = 0.0f;
             m_jumpCooldown = m_minJumpCooldown;
+
+            // Play sound if enabled
+            if (m_playJumpSound) PlayJumpSound();
+        }
+
+        /// <summary>
+        /// Plays a random jump sound from audio bundle
+        /// </summary>
+        private void PlayJumpSound()
+        {
+            // Choose sound either weighted or random
+            AudioBundle.Audio audio = (m_useWeightsForAudio) ? m_jumpSounds.GetWeightedAudio() : m_jumpSounds.GetRandomAudio();
+
+            // Play based on if audio source is set or not
+            if (m_jumpAudioSource != null)
+            {
+                m_jumpAudioSource.PlayOneShot(audio.Clip, audio.Volume);
+            }
+            else
+            {
+                AudioSource.PlayClipAtPoint(audio.Clip, transform.position, audio.Volume);
+            }
         }
 
         /// <summary>

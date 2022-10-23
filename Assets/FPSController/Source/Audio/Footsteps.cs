@@ -2,10 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using URC.Core;
+using URC.Camera;
 using URC.Utility;
 
 namespace URC.Audio
 {
+    /// <summary>
+    /// The component for playing footsteps for the character
+    /// </summary>
     public class Footsteps : Module
     {
         #region Structs
@@ -24,16 +28,47 @@ namespace URC.Audio
 
         #endregion
 
+        #region Enums
+
+        /// <summary>
+        /// Options for how the footsteps should be controlled.
+        /// </summary>
+        public enum FootstepMode
+        {
+            Fixed,                 // Footsteps will be played at fixed intervals
+            VelocityDriven,        // Footsteps will be controlled by movement of motor
+            ManualApplication,     // Footsteps will be controlled manually by outside scripts
+            HeadbobSyncronization  // Footsteps will sync to headbob module
+        }
+
+        /// <summary>
+        /// Various ways to pick footsteps to play
+        /// </summary>
+        public enum FootstepSelectionMode
+        {
+            Random,         // Footsteps will be picked randomly from the bundle
+            WeightedRandom, // Random, but with weights
+            Ordered         // Footsteps will be played in order
+        }
+
+        #endregion
+
         #region Public variables
 
+        [Header("General settings")]
+        [Tooltip("How the footsteps should be controlled.")]
+        public FootstepMode m_footstepMode;
+        [Tooltip("The source to play footsteps from. Will play in world if left empty.")]
+        public AudioSource m_audioSource;
+
         [Header("Sounds")]
-        [Tooltip("Default footsteps to use. If left empty, it will use the default footsteps that comes with controller.")]
+        [Tooltip("Default footsteps. If left empty, default bundle will be loaded.")]
         public AudioBundle m_footstepSounds;
-        [Tooltip("Should the footsteps be played in the order they are in the array? If not, footsteps will be chosen at random.")]
-        public bool m_playOrdered;
-        [Tooltip("Random variation in pitch for footstep sounds. Can help make a small amount of footsteps sound less repetitive. Will not work unless an audio source is specified")]
+        [Tooltip("The mode to select what footsteps to play.")]
+        public FootstepSelectionMode m_selectionMode;
+        [Tooltip("Random variation in pitch of footsteps. Can help small amount of footstep sounds sound more varied.")]
         public float m_pitchVariation;
-        [Tooltip("Random variation to volume. Preferably keep this value very low.")]
+        [Tooltip("Random variation to volume. Preferably keep this low.")]
         public float m_volumeVariation;
 
         [Header("Overrides")]
@@ -42,59 +77,76 @@ namespace URC.Audio
         [Tooltip("When coming into contact with a surface that has custom audio properties, should layer overrides have higher priority?")]
         public bool m_overrideSurfaces;
 
-        [Header("Timing")]
-        [Tooltip("How often should the footsteps be played?")]
-        public float m_frequency;
-        [Tooltip("Should the frequency scale with velocity?")]
-        public bool m_frquencyVelocityScaling;
-        [Tooltip("Random variation to frequency.")]
-        public float m_frequencyVariation;
-        [Tooltip("How long to wait after standing still before resetting the footsteps timer.")]
+        [Header("Resetting")]
+        [Tooltip("Delay when stopping before footstep timer is reset.")]
         public float m_resetDelay;
         [Tooltip("When going from standing still to moving, how far into the frequency should the footsteps start? With long frequencies, this can help with starting them sooner.")]
         [Range(0, 1)]
         public float m_footstepPrewarming;
 
-        [Header("Others")]
-        [Tooltip("Minimum velocity to start playing footsteps. Can prevent footsteps from being active when walking into walls.")]
-        public float m_minVelocity;
-        [Tooltip("Specify the audio source to play the footsteps from. If none is specified, sounds will be played with PlayClipAtPoint()")]
-        public AudioSource m_audioSource;
+        [Header("Fixed mode")]
+        [Tooltip("The interval between footsteps in fixed mode.")]
+        public float m_fixedFrequency;
+
+        [Header("Velocity driven mode")]
+        [Tooltip("The minimum velocity required to play footsteps.")]
+        public float m_velocityThreshold;
+        [Tooltip("Speed of footsteps. This value is multiplied by magnitude of vertical velocity")]
+        public float m_velocityDrivenFrequency;
 
         #endregion
 
         #region Private variables
 
-        // Footsteps
-        private float m_footstepTimer;
-        private int m_footstepIndex;
-        private float m_resetTimer;
+        // Footstep
+        private int m_footstepIndex;    // Index of the current footstep for ordered selection
+        private float m_footstepTimer;  // Timer for footstep interval
+        private float m_lastHeadbobValue;
+        private bool m_headbobSoundPlayed;
         private AudioBundle m_defaultFootsteps;
+
+        // Resettings
+        private float m_resetTimer;
+
+        // Optional headbob module
+        private Headbob m_headbobModule;
 
         #endregion
 
         #region Unity methods
 
-        private void Start()
+        public override void Awake()
         {
+            base.Awake();
+            VerifyHeadbob();
+            VerifyOverrideLayers();            
+
             // If there are no sounds, use the default footsteps
             if (m_footstepSounds == null) FindDefaultFootsteps();
 
             // Cache the default footsteps
             m_defaultFootsteps = m_footstepSounds;
-
-            // Make sure there are no overlapping override layers
-            VerifyOverrideLayers();
         }
 
         private void Update()
         {
-            if (Motor.Grounded && Motor.HorizontalSpeed > 0.0f && InputHelper.DesiresMove())
+            // Always check for resets
+            Resetting();
+            
+            if (m_footstepMode == FootstepMode.Fixed)
             {
-                UpdateFootsteps();
+                FixedFootsteps();
             }
 
-            CheckReset();
+            else if (m_footstepMode == FootstepMode.VelocityDriven)
+            {
+                VelocityDriven();
+            }
+
+            else if (m_footstepMode == FootstepMode.HeadbobSyncronization)
+            {
+                HeadbobSyncronization();
+            }
         }
 
         private void OnEnable()
@@ -110,23 +162,6 @@ namespace URC.Audio
         #endregion
 
         #region Initialization
-
-        /// <summary>
-        /// Attempts to load the default footsteps from resources folder.
-        /// Will throw a warning if the default footsteps are not found.
-        /// </summary>
-        private void FindDefaultFootsteps()
-        {
-            // Attempt to load it from resources
-            m_footstepSounds = Resources.Load<AudioBundle>("AudioBundles/Default footsteps");
-
-            // If it's still null, throw a warning
-            if (m_footstepSounds == null)
-            {
-                Logging.Log("No audio bundle was assigned to footsteps, and default footsteps could not be found. Make sure to create one via asset menu!.", LoggingLevel.Critical);
-                this.enabled = false;
-            }
-        }
 
         /// <summary>
         /// Ensures that there are no overlapping layers in the layermasks for overriding.
@@ -154,38 +189,55 @@ namespace URC.Audio
             }
         }
 
-        #endregion
-
-        #region Footsteps
-        
         /// <summary>
-        /// Updates the footstep timer and plays footstep sound when needed.
-        /// This is a public method and can be used to enable footsteps for times when the motor is not grounded, like if you were to implement wallrunning.
+        /// Attempts to load the default footsteps from resources folder.
+        /// Will throw a warning if the default footsteps are not found.
         /// </summary>
-        public void UpdateFootsteps()
+        private void FindDefaultFootsteps()
         {
-            // Has footsteps timer reached the frequency?
-            if (m_footstepTimer >= GetFrequency())
-            {
-                // Play footstep sound
-                PlayFootstepSound();
+            // Attempt to load it from resources
+            m_footstepSounds = Resources.Load<AudioBundle>("AudioBundles/Default footsteps");
 
-                // Reset footsteps timer
-                m_footstepTimer = 0;
-            }
-            else
+            // If it's still null, throw a warning
+            if (m_footstepSounds == null)
             {
-                // Increase footsteps timer
-                m_footstepTimer += Time.deltaTime;
+                Logging.Log("No audio bundle was assigned to footsteps, and default footsteps could not be found. Make sure to create one via asset menu!.", LoggingLevel.Critical);
+                this.enabled = false;
             }
         }
 
         /// <summary>
-        /// Plays a footstep sound, ignoring timers and conditions
+        /// Attempts to find headbob module and throw message if not found
+        /// and headbob mode is selected.
         /// </summary>
-        public void ForceFootstep()
+        private void VerifyHeadbob()
         {
-            PlayFootstepSound();
+            m_headbobModule = FindClass<Headbob>();
+            if (m_footstepMode == FootstepMode.HeadbobSyncronization && m_headbobModule == null)
+            {
+                Logging.Log("Headbob syncing was chosen for footsteps, but no headbob module was found! Switching to default mode.", LoggingLevel.Critical);
+                m_footstepMode = FootstepMode.VelocityDriven;
+            }
+        }
+
+        #endregion
+
+        #region Footsteps
+
+        /// <summary>
+        /// Plays a footstep audio.
+        /// </summary>
+        public void PlayFootstep()
+        {
+            // Notify if audio bundle is empty
+            if (m_footstepSounds.Size == 0)
+            {
+                Logging.Log("There are no sounds in the footsteps bundle. No sound will be played", LoggingLevel.Critical);
+                return;
+            }
+
+            AudioBundle.Audio audio = GetFootstepAudio();
+            PlayAudio(audio);
         }
 
         /// <summary>
@@ -220,73 +272,107 @@ namespace URC.Audio
         }
 
         /// <summary>
-        /// Tracks and resets the footsteps if the player is standing still.
+        /// Attempts to reset the footsteps timer if player has been standing still for a while.
+        /// Does not apply to headbob syncronization
         /// </summary>
-        private void CheckReset()
+        private void Resetting()
         {
-            if (!InputHelper.DesiresMove() && Motor.HorizontalSpeed > m_minVelocity || !Motor.Grounded)
+            // Increment timer when not moving
+            if (!InputHelper.DesiresMove())
             {
-                // Decrement delay timer and do nothing unless its 0
-                m_resetTimer -= Time.deltaTime;
-                if (m_resetTimer > 0)
-                {
-                    return;
-                }
-
-                // Reset footsteps timer
-                m_footstepTimer = GetFrequency() * m_footstepPrewarming;
+                m_resetTimer += Time.deltaTime;
             }
 
-            else
+            // Reset footsteps timer if standing still for long enough
+            if (m_resetTimer >= m_resetDelay)
             {
-                // Reset delay as we are moving
-                m_resetTimer = m_resetDelay;
+                m_footstepTimer = GetFrequency() * m_footstepPrewarming;
+                m_resetTimer = 0;
             }
         }
 
         /// <summary>
-        /// Selects and plays a footstep sound at chosen audio source
+        /// Footsteps should be played at fixed intervals. Most basic form
+        /// of footsteps.
         /// </summary>
-        private void PlayFootstepSound()
+        private void FixedFootsteps()
         {
-            // For ease of use, catch and log if there are no clips in the audio bundle
-            if (m_footstepSounds.Size == 0)
+            // Update timer if input is provided and grounded
+            if (IsUpdateValid()) m_footstepTimer += Time.deltaTime;
+
+            // Play footsteps if timer is over interval
+            if (m_footstepTimer >= GetFrequency())
             {
-                Logging.Log("There are no audio in the audio budle (" + m_footstepSounds.name + "). Make sure there are at least 1.", LoggingLevel.Critical);
+                PlayFootstep();
+                m_footstepTimer = 0;
+            }
+        }
+
+        /// <summary>
+        /// This logic is for when footsteps should be based on the velocity
+        /// and movement of the motor.
+        /// </summary>
+        private void VelocityDriven()
+        {
+            // Make sure we are grounded and moving
+            if (!IsUpdateValid() || Motor.HorizontalSpeed < m_velocityThreshold)
+            {
                 return;
             }
 
-            // Get clip
-            AudioBundle.Audio footstep = GetFootstepSound();
+            m_footstepTimer += Time.deltaTime;
 
-            // Play clip
-            PlayAudio(footstep);
+            // Play footsteps if timer is over interval
+            if (m_footstepTimer >= GetFrequency())
+            {
+                PlayFootstep();
+                m_footstepTimer = 0;
+            }
         }
 
         /// <summary>
-        /// Returns a footstep based on settings
+        /// This is the logic for when footsteps should be syncronized to headbobs.
+        /// Plays footsteps every time that the headbob is at a peak.
+        /// </summary>
+        private void HeadbobSyncronization()
+        {
+            float headbob = m_headbobModule.GetNormalizedBobValue();
+
+            // Play one time once headbob goes from decending value to ascending value
+            if (headbob > m_lastHeadbobValue && !m_headbobSoundPlayed)
+            {
+                PlayFootstep();
+                m_headbobSoundPlayed = true;
+            }
+
+            // Reset flag once headbob goes from ascending value to decending value
+            else if (headbob < m_lastHeadbobValue)
+            {
+                m_headbobSoundPlayed = false;
+            }
+        }
+
+        /// <summary>
+        /// Calculates the frequency based on mode selected.
         /// </summary>
         /// <returns></returns>
-        private AudioBundle.Audio GetFootstepSound()
+        private float GetFrequency()
         {
-            // Check if we should play ordered or random
-            if (m_playOrdered)
+            if (m_footstepMode == FootstepMode.VelocityDriven)
             {
-                // Check if we have reached the end of the array
-                if (m_footstepIndex >= m_footstepSounds.Size)
-                {
-                    // Reset index
-                    m_footstepIndex = 0;
-                }
+                return m_velocityDrivenFrequency / Motor.HorizontalSpeed;
+            }
 
-                // Return footstep
-                return m_footstepSounds.GetAudio(m_footstepIndex);
-            }
-            else
-            {
-                // Return random footstep
-                return m_footstepSounds.GetRandomAudio();
-            }
+            // Return fixed as default
+            return m_fixedFrequency;
+        }
+
+        /// <summary>
+        /// Checks that we are grounded and desires to move in order for update to be considered grounded
+        /// </summary>
+        private bool IsUpdateValid()
+        {
+            return (Motor.Grounded && InputHelper.DesiresMove());
         }
 
         /// <summary>
@@ -326,15 +412,35 @@ namespace URC.Audio
         }
 
         /// <summary>
-        /// Returns the frequency of footsteps, accounting for velocity if toggled
+        /// Picks a footstep sound from the bundle based on settings
         /// </summary>
         /// <returns></returns>
-        private float GetFrequency()
+        private AudioBundle.Audio GetFootstepAudio()
         {
-            float frequency = (m_frquencyVelocityScaling) ? m_frequency / Motor.HorizontalSpeed : m_frequency;
-            return frequency;
-        }
+            AudioBundle.Audio audio = null;
 
-        #endregion
+            // ordered selection
+            if (m_selectionMode == FootstepSelectionMode.Ordered)
+            {
+                // Loop if we are at the end of the bundle
+                if (m_footstepIndex >= m_footstepSounds.Size)
+                {
+                    m_footstepIndex = 0;
+                }
+
+                audio = m_footstepSounds.GetAudio(m_footstepIndex);
+                m_footstepIndex++;
+            }
+
+            // Random selection
+            else
+            {
+                audio = (m_selectionMode == FootstepSelectionMode.WeightedRandom) ? m_footstepSounds.GetWeightedAudio() : m_footstepSounds.GetRandomAudio();
+            }
+
+            return audio;
+        }
     }
+
+    #endregion
 }
