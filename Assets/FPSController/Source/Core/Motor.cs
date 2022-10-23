@@ -129,6 +129,9 @@ namespace URC.Core
         private Rigidbody m_rigidbody;              // The rigidbody of the character
         private CapsuleCollider m_collider;         // The collider of the character
 
+        // Modules
+        private List<Module> m_modules;             // List of all modules that are attached to the motor
+
         #endregion
 
         #region Events
@@ -212,6 +215,52 @@ namespace URC.Core
 
             // Assign material
             m_collider.material = pm;
+        }
+
+        #endregion
+
+        #region Modules
+        /// <summary>
+        /// Registers a module in the motor
+        /// </summary>
+        /// <param name="module">The module to register</param>
+        public void RegisterModule(Module module)
+        {
+            // Add module to list
+            m_modules.Add(module);
+        }
+
+        /// <summary>
+        /// Unregisters a module from the motor
+        /// </summary>
+        /// <param name="module">Module to unregister</param>
+        public void UnregisterModule(Module module)
+        {
+            // Remove module from list
+            m_modules.Remove(module);
+        }
+
+        /// <summary>
+        /// Gets a module of the specific type from list of modules.
+        /// This is more performant by keeping a master list of all modules.
+        /// </summary>
+        /// <typeparam name="T">The type of module</typeparam>
+        /// <returns></returns>
+        public Module GetModule<T>() where T : Module
+        {
+            // Loop through all modules
+            foreach (Module module in m_modules)
+            {
+                // Check if module is of type T
+                if (module is T)
+                {
+                    // Return module
+                    return module;
+                }
+            }
+
+            // No module found
+            return null;
         }
 
         #endregion

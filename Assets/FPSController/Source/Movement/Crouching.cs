@@ -75,13 +75,15 @@ namespace URC.Movement
             m_targetSize = m_originalSize;
         }
 
-        private void OnEnable()
+        public override void OnEnable()
         {
+            base.OnEnable();
             Motor.OnGroundExit += OnGroundExit;
         }
 
-        private void OnDisable()
+        public override void OnDisable()
         {
+            base.OnDisable();
             Motor.OnGroundExit -= OnGroundExit;
         }
 

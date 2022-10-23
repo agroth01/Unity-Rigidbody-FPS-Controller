@@ -149,13 +149,15 @@ namespace URC.Audio
             }
         }
 
-        private void OnEnable()
+        public override void OnEnable()
         {
+            base.OnEnable();
             Motor.OnNewSurfaceEnter += CheckForOverride;
         }
 
-        private void OnDisable()
+        public override void OnDisable()
         {
+            base.OnDisable();
             Motor.OnNewSurfaceEnter -= CheckForOverride;
         }
 
@@ -212,7 +214,7 @@ namespace URC.Audio
         /// </summary>
         private void VerifyHeadbob()
         {
-            m_headbobModule = FindClass<Headbob>();
+            m_headbobModule = (Headbob)Motor.GetModule<Headbob>();
             if (m_footstepMode == FootstepMode.HeadbobSyncronization && m_headbobModule == null)
             {
                 Logging.Log("Headbob syncing was chosen for footsteps, but no headbob module was found! Switching to default mode.", LoggingLevel.Critical);
