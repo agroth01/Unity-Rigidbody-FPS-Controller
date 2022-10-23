@@ -29,14 +29,15 @@ your own controllers.
 * Headbobbing
 * Crouching
 * Jumping
-* Camera utilities
+* Sprinting
 
-### Planned features
+### Additional features
+* Camera utilities
+* Stamina system
 * Interaction system
 * Custom surface properties
 * Custom surface audio
 * "Plug and play" prefabs
-* Sprinting
 
 # Contributions
 If you want to contribute to this project, please feel free to fork this project and create pull requests. I will however be very strict with accepting, in order to preserve 
@@ -50,6 +51,8 @@ none of this is mandatory in order to use this controller, but very appreciated!
 * Create some great games for the community (please share with me if you do!)
 * Share this project with others
 * Add me in the credits of your project
+* Say "Thank you Alex" into a mirror at 12am while completely alone. I will personally appear in the mirror and thank you.
+* [Buy me a coffee](https://www.buymeacoffee.com/HP3Byv4s7H) here. I once again want to make it clear that this is very much not mandatory.
 
 # Disclaimer
 I am providing this free of charge and will therefore not guarantee any support/updates of this. 
