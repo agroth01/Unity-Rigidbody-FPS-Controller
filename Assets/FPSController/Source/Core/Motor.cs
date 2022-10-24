@@ -780,7 +780,6 @@ namespace URC.Core
         /// </summary>
         private void OnNewSurface()
         {
-            Debug.Log(m_groundSurface.Transform.name);
             OnNewSurfaceEnter?.Invoke();
         }
 

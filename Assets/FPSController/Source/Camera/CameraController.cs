@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using URC.Utility;
+using URC.Core;
 
 namespace URC.Camera
 {
@@ -218,6 +219,17 @@ namespace URC.Camera
         /// </summary>
         private void VerifyCorrectSetup()
         {
+            // Check that player is set. If not, try to find motor component in scene.
+            if (m_player == null)
+            {
+                m_player = FindObjectOfType<Motor>().transform;
+                if (m_player == null)
+                {
+                    Logging.Log("Player has not been assigned in the camera controller, and no object with a motor component was found in the scene. Disabling camera controller.", LoggingLevel.Critical);
+                    this.enabled = false;
+                }
+            }
+
             // Make sure the camera is not on this gameObject
             if (GetComponent<UnityEngine.Camera>())
             {
