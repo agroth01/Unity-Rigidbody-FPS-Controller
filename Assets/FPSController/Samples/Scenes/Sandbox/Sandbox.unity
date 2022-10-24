@@ -207,7 +207,7 @@ MonoBehaviour:
   m_gravityScale: 2.5
   m_groundLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 65
   m_maxSlopeAngle: 50
   m_advancedSettings:
     LoggingLevel: 1
@@ -352,7 +352,6 @@ GameObject:
   - component: {fileID: 679000480}
   - component: {fileID: 679000479}
   - component: {fileID: 679000478}
-  - component: {fileID: 679000477}
   - component: {fileID: 679000482}
   - component: {fileID: 679000483}
   m_Layer: 0
@@ -377,31 +376,6 @@ Transform:
   m_Father: {fileID: 139911926}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &679000477
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 679000475}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed6198193b41c6f48b7bb40cc8f87d8b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_footstepSounds: {fileID: 0}
-  m_playOrdered: 1
-  m_pitchVariation: 0.1
-  m_volumeVariation: 0.05
-  m_layerOverrides: []
-  m_overrideSurfaces: 0
-  m_frequency: 2.5
-  m_frquencyVelocityScaling: 1
-  m_frequencyVariation: 0.05
-  m_resetDelay: 0.2
-  m_footstepPrewarming: 0.5
-  m_minVelocity: 1
-  m_audioSource: {fileID: 0}
 --- !u!114 &679000478
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -529,12 +503,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_footstepMode: 3
   m_audioSource: {fileID: 0}
-  m_footstepSounds: {fileID: 11400000, guid: bcfe2dfcaf902d14f82cc96157024081, type: 2}
+  m_footstepSounds: {fileID: 0}
   m_selectionMode: 0
   m_pitchVariation: 0.2
   m_volumeVariation: 0.05
-  m_resetDelay: 0
-  m_footstepPrewarming: 0
+  m_layerOverrides:
+  - Layers:
+      serializedVersion: 2
+      m_Bits: 1
+    Footsteps: {fileID: 11400000, guid: 54efb878f6c3e3d49988e50edc5b3767, type: 2}
+  m_overrideSurfaces: 0
+  m_resetDelay: 0.2
+  m_footstepPrewarming: 0.5
   m_fixedFrequency: 1
   m_velocityThreshold: 1
   m_velocityDrivenFrequency: 7

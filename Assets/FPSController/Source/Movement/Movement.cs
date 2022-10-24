@@ -89,45 +89,8 @@ namespace URC.Movement
 
             // Find new velocity and apply it
             Vector3 newVelocity = Vector3.MoveTowards(Motor.Velocity, desiredVelocity, speedChange);
-            if (desiredVelocity != Vector3.zero)
-                newVelocity = StepDetection(newVelocity);
 
             Motor.SetVelocity(newVelocity);
-        }
-        
-        /// <summary>
-        /// Checks if there is a step within the maximum height in the velocity direction of the player.
-        /// If moving into it, will move the player up the step.
-        /// </summary>
-        private Vector3 StepDetection(Vector3 velocity)
-        {
-            // Get current direction
-            Vector3 direction = velocity.normalized;
-
-            // Check if there is a step in the direction of the velocity
-            Vector3 origin = Motor.GetPlayerBottom() + (Vector3.up * m_stepHeight);
-            origin += direction * (Motor.GetPlayerRadius() + 0.1f);
-            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, m_stepHeight - 0.01f, Motor.GroundLayers))
-            {
-                // Is it valid grounding?
-                if (Vector3.Angle(Vector3.up, hit.normal) < Motor.m_maxSlopeAngle)
-                {
-                    // Find desired point and get the direction towards it
-                    Vector3 position = hit.point + (Vector3.up * (Motor.GetPlayerHeight() / 2f));
-                    Vector3 dir = (position - transform.position).normalized;
-
-                    // Approximate how long it will take to reach the point and force grounding for that time,
-                    // this is to prevent forces from pushing the player off the step
-                    float time = Vector3.Distance(transform.position, position) / m_stepSpeed;
-                    Motor.ForceGrounded(time);
-
-                    // Change velocity to move towards step point instead
-                    return dir * m_stepSpeed;
-                }                
-            }
-
-            // Return the same velocity if no step was found
-            return velocity;
         }
 
         /// <summary>

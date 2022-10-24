@@ -4,6 +4,7 @@ using UnityEngine;
 using URC.Core;
 using URC.Camera;
 using URC.Utility;
+using URC.Surfaces;
 
 namespace URC.Audio
 {
@@ -105,6 +106,9 @@ namespace URC.Audio
         private bool m_headbobSoundPlayed;
         private AudioBundle m_defaultFootsteps;
 
+        // Overriding
+        private bool m_overridingFootsteps;     // Is the layer override currently active?
+
         // Resettings
         private float m_resetTimer;
 
@@ -117,8 +121,7 @@ namespace URC.Audio
 
         public override void Awake()
         {
-            base.Awake();
-            VerifyHeadbob();
+            base.Awake();            
             VerifyOverrideLayers();            
 
             // If there are no sounds, use the default footsteps
@@ -126,6 +129,13 @@ namespace URC.Audio
 
             // Cache the default footsteps
             m_defaultFootsteps = m_footstepSounds;
+        }
+
+        private void Start()
+        {
+            // Verify that headbob exists if we are using it.
+            // Set in start, as modules are registered to motor in OnEnable(), which is after awake.
+            VerifyHeadbob();
         }
 
         private void Update()
@@ -149,14 +159,16 @@ namespace URC.Audio
             }
         }
 
-        private void OnEnable()
+        public override void OnEnable()
         {
-            Motor.OnNewSurfaceEnter += CheckForOverride;
+            base.OnEnable();
+            Motor.OnNewSurfaceEnter += CheckNewSurface;
         }
 
-        private void OnDisable()
+        public override void OnDisable()
         {
-            Motor.OnNewSurfaceEnter -= CheckForOverride;
+            base.OnDisable();
+            Motor.OnNewSurfaceEnter -= CheckNewSurface;
         }
 
         #endregion
@@ -212,7 +224,7 @@ namespace URC.Audio
         /// </summary>
         private void VerifyHeadbob()
         {
-            m_headbobModule = FindClass<Headbob>();
+            m_headbobModule = (Headbob)Motor.GetModule<Headbob>();
             if (m_footstepMode == FootstepMode.HeadbobSyncronization && m_headbobModule == null)
             {
                 Logging.Log("Headbob syncing was chosen for footsteps, but no headbob module was found! Switching to default mode.", LoggingLevel.Critical);
@@ -241,7 +253,16 @@ namespace URC.Audio
         }
 
         /// <summary>
-        /// Called every time the motor enters a new surface.
+        /// Is called when the motor enters a new surface.
+        /// Performs checks to see if the footstep audio should be overridden.
+        /// </summary>
+        private void CheckNewSurface()
+        {
+            CheckForOverride();
+            CheckCustomAudio();
+        }
+
+        /// <summary>
         /// Checks if the layer of the new surface is in the overrides and swap footsteps if true.
         /// Revert to default footsteps if the layer is not in the overrides.
         /// </summary>
@@ -269,6 +290,33 @@ namespace URC.Audio
 
             // If the layer is not in the overrides, revert to default footsteps
             if (!overridden) m_footstepSounds = m_defaultFootsteps;
+            m_overridingFootsteps = overridden;
+        }
+
+        /// <summary>
+        /// Checks if the current surface of the motor has a custom audio surface.
+        /// Will swap footsteps with that, unless there is an override from the layer and layer override does not take priority.
+        /// </summary>
+        private void CheckCustomAudio()
+        {
+            // Check if there is a audio surface on the current surface
+            AudioSurface surface = Motor.GroundSurface.GetProperties<AudioSurface>();
+
+            // If there is a surface, swap if not overriding or if the override takes priority
+            if (surface != null)
+            {
+                
+                if (!m_overridingFootsteps || (m_overridingFootsteps && !m_overrideSurfaces))
+                {
+                    m_footstepSounds = surface.m_footsteps;
+                }
+            }
+
+            else
+            {
+                // Go back to default
+                m_footstepSounds = m_defaultFootsteps;
+            }
         }
 
         /// <summary>

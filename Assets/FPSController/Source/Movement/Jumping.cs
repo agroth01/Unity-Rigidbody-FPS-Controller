@@ -75,13 +75,15 @@ namespace URC.Movement
             FindDefaultSounds();
         }
 
-        private void OnEnable()
+        public override void OnEnable()
         {
+            base.OnEnable();
             Motor.OnGroundEnter += OnGroundEnter;
         }
 
-        private void OnDisable()
+        public override void OnDisable()
         {
+            base.OnDisable();
             Motor.OnGroundEnter -= OnGroundEnter;
         }
 

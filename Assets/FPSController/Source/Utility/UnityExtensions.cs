@@ -31,6 +31,22 @@ namespace URC.Utility
             return fullName.Split(".")[fullName.Split(".").Length - 1];
         }
 
+        /// <summary>
+        /// Converts an array to a list of the same type.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static List<T> ToList<T>(this T[] array)
+        {
+            List<T> list = new List<T>();
+            for (int i = 0; i < array.Length; i++)
+            {
+                list.Add(array[i]);
+            }
+            return list;
+        }
+
     }
 
 }

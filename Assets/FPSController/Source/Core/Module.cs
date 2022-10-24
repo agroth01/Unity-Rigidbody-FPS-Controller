@@ -25,6 +25,16 @@ namespace URC.Core
             }
         }
 
+        public virtual void OnEnable()
+        {
+            Motor.RegisterModule(this);
+        }
+
+        public virtual void OnDisable()
+        {
+            Motor.UnregisterModule(this);
+        }
+
         /// <summary>
         /// Looks for the capsule collider of the player.
         /// Will return null if no collider is found
@@ -50,34 +60,6 @@ namespace URC.Core
 
             // Default return value
             return collider;
-        }
-
-        /// <summary>
-        /// Attempts to find a class with the given type on both the object of this
-        /// module and parent.
-        /// </summary>
-        /// <typeparam name="T">The type to find</typeparam>
-        /// <returns></returns>
-        public T FindClass<T>() where T : Component
-        {
-            T component;
-
-            // Check if it is on this object
-            component = GetComponent<T>();
-            if (component != null)
-            {
-                return component;
-            }
-
-            // Check if it is on parent object
-            component = GetComponentInParent<T>();
-            if (component != null)
-            {
-                return component;
-            }
-
-            // Default return value
-            return component;
         }
 
         /// <summary>
