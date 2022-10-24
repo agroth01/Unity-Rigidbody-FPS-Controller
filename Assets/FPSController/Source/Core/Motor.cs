@@ -796,14 +796,6 @@ namespace URC.Core
             CheckCollision(collision);
         }
 
-        /// <summary>
-        /// Called every frame while the motor is colliding with another object.
-        /// </summary>
-        /// <param name="collision"></param>
-        private void OnCollisionStay(Collision collision)
-        {
-            //CheckCollision(collision);
-        }
 
         /// <summary>
         /// Called when the collider of the motor exits a collision.

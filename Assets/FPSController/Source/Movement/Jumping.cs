@@ -1,10 +1,10 @@
 using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using URC.Core;
 using URC.Audio;
 using URC.Utility;
-using UnityEngine.SceneManagement;
 
 namespace URC.Movement
 {
@@ -64,6 +64,9 @@ namespace URC.Movement
         public AudioBundle m_jumpSounds;
         [Tooltip("Use weights when picking random sound?")]
         public bool m_useWeightsForAudio;
+
+        // Events
+        public event Action OnJump;     // Called when the player jumps
 
         // Jump
         private int m_sequenceIndex;    // How far along the sequence we are
@@ -228,6 +231,9 @@ namespace URC.Movement
 
             // Play sound if enabled
             if (m_playJumpSound) PlayJumpSound();
+
+            // Invoke event
+            OnJump?.Invoke();
         }
 
         /// <summary>
