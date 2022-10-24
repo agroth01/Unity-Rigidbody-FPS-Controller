@@ -11,6 +11,9 @@ namespace URC.Surfaces
     public class AudioSurface : CustomSurfaceProperties
     {
         [Header("Audio")]
+        [Tooltip("The footsteps to play on this surface.")]
         public AudioBundle m_footsteps;
+        [Tooltip("The landing sound to play on this surface.")]
+        public AudioBundle m_landingSounds;
     }
 }

@@ -116,7 +116,7 @@ namespace URC.Camera
         /// <returns></returns>
         public float GetNormalizedBobValue()
         {
-            return Mathf.Sin(m_timer * GetFrequency());
+           return Mathf.Sin(m_timer * GetFrequency());
         }
 
         private void UpdateHeadbob()

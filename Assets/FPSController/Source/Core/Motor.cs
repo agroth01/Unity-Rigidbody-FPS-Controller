@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using URC.Utility;
+using URC.Surfaces;
 
 namespace URC.Core
 {
@@ -36,7 +37,7 @@ namespace URC.Core
             /// The normal of the surface
             /// </summary>
             public Vector3 Normal { get; private set; }
-            
+
             /// <summary>
             /// The point where contact between motor and surface was made
             /// </summary>
@@ -55,6 +56,9 @@ namespace URC.Core
                 get { return Vector3.Angle(Vector3.up, Normal); }
             }
 
+            // Store all custom surface properties
+            private List<CustomSurfaceProperties> m_properties = new List<CustomSurfaceProperties>();
+
             /// <summary>
             /// Copies the values of another surface
             /// </summary>
@@ -64,17 +68,49 @@ namespace URC.Core
                 Normal = other.Normal;
                 Point = other.Point;
                 Transform = other.Transform;
+                m_properties = other.m_properties;
+            }
+
+            /// <summary>
+            /// Returns all custom properties of the surface
+            /// </summary>
+            /// <returns></returns>
+            public List<CustomSurfaceProperties> GetProperties()
+            {
+                return m_properties;
+            }
+
+            /// <summary>
+            /// Returns the first custom property of the surface that matches the given type
+            /// </summary>
+            /// <typeparam name="T"></typeparam>
+            /// <returns></returns>
+            public T GetProperties<T>() where T : CustomSurfaceProperties
+            {
+                if (m_properties.Count == 0) return null;
+
+                for (int i = 0; i < m_properties.Count; i++)
+                {
+                    if (m_properties[i].GetType() == typeof(T))
+                    {
+                        return (T)m_properties[i];
+                    }
+                }
+                return null;
             }
 
             public Surface(Collision collision)
             {
                 // Get first contact point
                 ContactPoint contact = collision.GetContact(0);
-                
+
                 // Store information
                 Normal = contact.normal;
                 Point = contact.point;
                 Transform = collision.transform;
+
+                // Get all custom surface properties
+                m_properties = collision.transform.GetComponents<CustomSurfaceProperties>().ToList();
             }
         }
 
@@ -130,7 +166,7 @@ namespace URC.Core
         private CapsuleCollider m_collider;         // The collider of the character
 
         // Modules
-        private List<Module> m_modules;             // List of all modules that are attached to the motor
+        private List<Module> m_modules = new List<Module>();             // List of all modules that are attached to the motor
 
         #endregion
 
@@ -153,11 +189,6 @@ namespace URC.Core
 
             // Set the logging level based on settings
             Logging.SetLoggingLevel(m_advancedSettings.LoggingLevel);
-        }
-
-        private void Start()
-        {
-            
         }
 
         private void Update()
@@ -530,6 +561,14 @@ namespace URC.Core
         }
 
         /// <summary>
+        /// The current surface of the ground
+        /// </summary>
+        public Surface GroundSurface
+        {
+            get { return m_groundSurface; }
+        }
+
+        /// <summary>
         /// The normal vector of the ground
         /// </summary>
         public Vector3 GroundNormal
@@ -741,6 +780,7 @@ namespace URC.Core
         /// </summary>
         private void OnNewSurface()
         {
+            Debug.Log(m_groundSurface.Transform.name);
             OnNewSurfaceEnter?.Invoke();
         }
 
@@ -762,7 +802,7 @@ namespace URC.Core
         /// <param name="collision"></param>
         private void OnCollisionStay(Collision collision)
         {
-            CheckCollision(collision);
+            //CheckCollision(collision);
         }
 
         /// <summary>
