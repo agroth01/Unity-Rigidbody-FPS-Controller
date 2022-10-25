@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58080931bf2c8b14d91d9cf31f70a537, type: 3}
+  m_Name: Default Jumps
+  m_EditorClassIdentifier: 
+  m_audioCollection:
+  - Clip: {fileID: 8300000, guid: 1ebc731ae39985b468ff77654d7876cf, type: 3}
+    Volume: 0.4
+    Tag: 
+    Weight: 1
+  - Clip: {fileID: 8300000, guid: c56fde2de0b21db4ea85009b9f4637d9, type: 3}
+    Volume: 0.4
+    Tag: 
+    Weight: 1
+  - Clip: {fileID: 8300000, guid: f3c08076c90b58946a110048ae46e261, type: 3}
+    Volume: 0.4
+    Tag: 
+    Weight: 1
