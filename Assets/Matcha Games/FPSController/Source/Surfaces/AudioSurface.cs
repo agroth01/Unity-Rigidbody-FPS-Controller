@@ -12,7 +12,9 @@ namespace URC.Surfaces
     {
         [Header("Audio")]
         [Tooltip("The footsteps to play on this surface.")]
-        public AudioBundle m_footsteps;
+        public AudioBundle m_footstepSounds;
+        [Tooltip("The sounds when jumping from this surface.")]
+        public AudioBundle m_jumpingSounds;
         [Tooltip("The landing sound to play on this surface.")]
         public AudioBundle m_landingSounds;
     }

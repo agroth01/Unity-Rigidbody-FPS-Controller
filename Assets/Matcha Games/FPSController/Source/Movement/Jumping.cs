@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using URC.Core;
 using URC.Audio;
-using URC.Utility;
+using URC.Surfaces;
 
 namespace URC.Movement
 {
@@ -46,7 +46,7 @@ namespace URC.Movement
         }
 
         [System.Serializable]
-        public struct JumpAudioSettings
+        public class JumpAudioSettings
         {
             [Tooltip("Should the audio be enabled?")]
             public bool Enabled;
@@ -54,6 +54,25 @@ namespace URC.Movement
             public AudioBundle Audio;
             [Tooltip("Should random choice use weights?")]
             public bool WeightedRandom;
+
+            // Track the default audio here
+            private AudioBundle m_defaultAudio;
+
+            /// <summary>
+            /// Resets to default audio
+            /// </summary>
+            public AudioBundle GetDefaultAudio()
+            {
+                return m_defaultAudio;
+            }
+
+            /// <summary>
+            /// Sets the new default audio of this
+            /// </summary>
+            public void SetDefaultBundle(AudioBundle defaultAudio)
+            {
+                m_defaultAudio = defaultAudio;
+            }
         }
 
         #endregion
@@ -103,7 +122,7 @@ namespace URC.Movement
         #region Events
 
         // Events
-        public event Action OnJump;     // Called when the player jumps
+        public event Action OnJump;     
 
         #endregion
 
@@ -118,12 +137,14 @@ namespace URC.Movement
         {
             base.OnEnable();
             Motor.OnGroundEnter += OnGroundEnter;
+            Motor.OnNewSurfaceEnter += OnNewSurface;
         }
 
         public override void OnDisable()
         {
             base.OnDisable();
             Motor.OnGroundEnter -= OnGroundEnter;
+            Motor.OnNewSurfaceEnter -= OnNewSurface;
         }
 
         private void Update()
@@ -153,15 +174,17 @@ namespace URC.Movement
 
         private void VerifyAudioSettings(JumpAudioSettings settings, string bundleName)
         {
+            // Attempt to find default audio if not set. Disable if default audio cant be found
+            settings.SetDefaultBundle(Resources.Load<AudioBundle>("AudioBundles/" + bundleName));
+
             // Ignore if already set
             if (settings.Audio != null)
                 return;
 
-            // Attempt to find default audio if not set. Disable if default audio cant be found
-            settings.Audio = Resources.Load<AudioBundle>("AudioBundles/" + bundleName);
-            if (settings.Enabled && settings.Audio == null)
+            // Set audio as default if nothing is set
+            else if (settings.Enabled && settings.Audio == null)
             {
-                settings.Enabled = false;
+                settings.Audio = settings.GetDefaultAudio();
             }
         }
 
@@ -316,6 +339,10 @@ namespace URC.Movement
             }
         }
 
+        #endregion
+
+        #region Subscriptions
+
         /// <summary>
         /// Resets the jump sequence. Subscribed to event from motor
         /// </summary>
@@ -326,7 +353,31 @@ namespace URC.Movement
             // Play landing sound if enabled
             if (m_landingAudio.Enabled) PlaySound(m_landingAudio);
         }
-    }
 
-    #endregion
+        /// <summary>
+        /// Checks if the surface has audio properties to override ground jump and landing sounds.
+        /// Subscribed from motor
+        /// </summary>
+        private void OnNewSurface()
+        {
+            // Check if there is a audio surface on the current surface
+            AudioSurface surface = Motor.GroundSurface.GetProperties<AudioSurface>();
+
+            // If there is a surface, swap audio
+            if (surface != null)
+            {
+                m_groundedJumpAudio.Audio = (surface.m_jumpingSounds == null) ? m_groundedJumpAudio.GetDefaultAudio() : surface.m_jumpingSounds;
+                m_landingAudio.Audio = (surface.m_jumpingSounds == null) ? m_landingAudio.GetDefaultAudio() : surface.m_landingSounds;
+            }
+
+            else
+            {
+                // Revert to default sounds
+                m_groundedJumpAudio.Audio = m_groundedJumpAudio.GetDefaultAudio();
+                m_landingAudio.Audio = m_landingAudio.GetDefaultAudio();
+            }
+        }
+        
+        #endregion
+    }  
 }

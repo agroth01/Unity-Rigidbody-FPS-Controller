@@ -308,14 +308,15 @@ namespace URC.Audio
                 
                 if (!m_overridingFootsteps || (m_overridingFootsteps && !m_overrideSurfaces))
                 {
-                    m_footstepSounds = surface.m_footsteps;
+                    m_footstepSounds = surface.m_footstepSounds;
                 }
             }
 
             else
             {
-                // Go back to default
-                m_footstepSounds = m_defaultFootsteps;
+                // Go back to default as long as footsteps arent overriden by layer
+                if (!m_overridingFootsteps)
+                    m_footstepSounds = m_defaultFootsteps;
             }
         }
 

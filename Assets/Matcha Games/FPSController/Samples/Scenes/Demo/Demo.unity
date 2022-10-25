@@ -614,6 +614,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2118975850570513047, guid: 80a7ac5a9a8f495468c5809079ec09bf, type: 3}
   m_PrefabInstance: {fileID: 2118975849967264302}
   m_PrefabAsset: {fileID: 0}
+--- !u!82 &604821690 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 2118975850570513044, guid: 80a7ac5a9a8f495468c5809079ec09bf, type: 3}
+  m_PrefabInstance: {fileID: 2118975849967264302}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &712472099
 GameObject:
   m_ObjectHideFlags: 0
@@ -1205,7 +1210,7 @@ Transform:
   m_GameObject: {fileID: 1599258572}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 13.74, y: 0.25, z: -3.57}
-  m_LocalScale: {x: 3, y: 0.5, z: 3}
+  m_LocalScale: {x: 7, y: 0.5, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1678111096}
@@ -1223,8 +1228,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a73d3788c03a1c0428b89af4c4e2bcc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_footsteps: {fileID: 11400000, guid: 54efb878f6c3e3d49988e50edc5b3767, type: 2}
-  m_landingSounds: {fileID: 0}
+  m_footstepSounds: {fileID: 11400000, guid: 54efb878f6c3e3d49988e50edc5b3767, type: 2}
+  m_jumpingSounds: {fileID: 11400000, guid: b6c6322d32f0bb545bb1168ef7259ca9, type: 2}
+  m_landingSounds: {fileID: 11400000, guid: c8bba4e2ae917d140be2eebc3f3215d1, type: 2}
 --- !u!65 &1599258575
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1751,7 +1757,7 @@ GameObject:
   - component: {fileID: 2089372349}
   - component: {fileID: 2089372348}
   - component: {fileID: 2089372347}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Dirt layer based
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1767,7 +1773,7 @@ Transform:
   m_GameObject: {fileID: 2089372345}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 13.74, y: 0.25, z: 2.27}
-  m_LocalScale: {x: 3, y: 0.5, z: 3}
+  m_LocalScale: {x: 7, y: 0.5, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1678111096}
@@ -1848,6 +1854,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 2118975850570513045, guid: 80a7ac5a9a8f495468c5809079ec09bf, type: 3}
+      propertyPath: m_advancedSettings.LoggingLevel
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2118975850570513047, guid: 80a7ac5a9a8f495468c5809079ec09bf, type: 3}
       propertyPath: m_RootOrder
       value: -1
@@ -1858,7 +1868,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2118975850570513047, guid: 80a7ac5a9a8f495468c5809079ec09bf, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 3.1
       objectReference: {fileID: 0}
     - target: {fileID: 2118975850570513047, guid: 80a7ac5a9a8f495468c5809079ec09bf, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1892,6 +1902,19 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 2118975851282553939, guid: 80a7ac5a9a8f495468c5809079ec09bf, type: 3}
+      propertyPath: m_speedMultiplier
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2118975851282554031, guid: 80a7ac5a9a8f495468c5809079ec09bf, type: 3}
+      propertyPath: m_audioSource
+      value: 
+      objectReference: {fileID: 604821690}
+    - target: {fileID: 2118975851282554031, guid: 80a7ac5a9a8f495468c5809079ec09bf, type: 3}
+      propertyPath: m_landingAudio.Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 2118975851282553939, guid: 80a7ac5a9a8f495468c5809079ec09bf, type: 3}
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: 80a7ac5a9a8f495468c5809079ec09bf, type: 3}

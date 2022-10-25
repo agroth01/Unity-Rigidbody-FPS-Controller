@@ -122,7 +122,7 @@ namespace URC.Movement
             m_isSprinting = true;
 
             // Update speed of motor
-            Motor.ModifySpeedMultiplier(m_speedMultiplier, Motor.ModifyType.Multiplicative);
+            Motor.ModifySpeedMultiplier(m_speedMultiplier, Motor.ModifyType.Additive);
 
             // Prevent toggle from resetting instantly
             m_startedThisFrame = true;
@@ -160,7 +160,7 @@ namespace URC.Movement
             m_isSprinting = false;
 
             // Reset speed of motor
-            Motor.ModifySpeedMultiplier(1.0f / m_speedMultiplier, Motor.ModifyType.Multiplicative);
+            Motor.ModifySpeedMultiplier(-m_speedMultiplier, Motor.ModifyType.Additive);
 
             // Reset camera if applicable
             if (m_sprintingFov != 0f)
