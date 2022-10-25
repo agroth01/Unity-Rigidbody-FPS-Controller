@@ -16,6 +16,8 @@ namespace URC.Movement
     /// </summary>
     public class Jumping : Module
     {
+        #region Enums
+
         /// <summary>
         /// Modes for how the jump should interact with the velocity of motor
         /// </summary>
@@ -24,6 +26,10 @@ namespace URC.Movement
             Additive,   // Jump adds force to the motor
             Override    // Jump overrides the velocity of motor
         }
+
+        #endregion
+
+        #region Structs
 
         /// <summary>
         /// Contains information about a single jump
@@ -39,12 +45,30 @@ namespace URC.Movement
             public JumpApplicationMode applicationMode;        
         }
 
+        [System.Serializable]
+        public struct JumpAudioSettings
+        {
+            [Tooltip("Should the audio be enabled?")]
+            public bool Enabled;
+            [Tooltip("The audio to play")]
+            public AudioBundle Audio;
+            [Tooltip("Should random choice use weights?")]
+            public bool WeightedRandom;
+        }
+
+        #endregion
+
+        #region Public variables
+
+        [Header("Activation")]
+        public KeyCode m_jumpKey;
+        [Tooltip("Can the player hold down jump key to jump automatically?")]
+        public bool m_autoJump;
+
         [Header("Sequence")]
         public List<Jump> m_jumpSequence;
 
-        [Header("Settings")]
-        [Tooltip("Can the player hold down space to jump automatically?")]
-        public bool m_autoJump;
+        [Header("Settings")]    
         [Tooltip("Time after leaving ground where player can still jump. Only counts for first jump in sequence and first jump requires ground.")]
         public float m_coyoteTime;
         [Tooltip("The amount of time player can queue up a jump before becoming grounded. This allows for more responsive jumps.")]
@@ -56,22 +80,34 @@ namespace URC.Movement
         public float m_minJumpCooldown;
 
         [Header("Audio settings")]
-        [Tooltip("Should jumping sounds be enabled?")]
-        public bool m_playJumpSound;
-        [Tooltip("The audio source the sounds will be played from. If left empty, the audio will be played in the world instead.")]
-        public AudioSource m_jumpAudioSource;
-        [Tooltip("The sound to play when jumping. If no sound is set, the default sound will be played.")]
-        public AudioBundle m_jumpSounds;
-        [Tooltip("Use weights when picking random sound?")]
-        public bool m_useWeightsForAudio;
+        [Tooltip("The audio source to play sound from. If none is selected, sound will be played in world space.")]
+        public AudioSource m_audioSource;
+        [Tooltip("Audio settings for when jumping while grounded.")]
+        public JumpAudioSettings m_groundedJumpAudio;
+        [Tooltip("Audio settings for additional jumps while in the air.")]
+        public JumpAudioSettings m_additionalJumpAudio;
+        [Tooltip("Audio settings for landing on the ground again.")]
+        public JumpAudioSettings m_landingAudio;
 
-        // Events
-        public event Action OnJump;     // Called when the player jumps
+        #endregion
+
+        #region Private variables
 
         // Jump
         private int m_sequenceIndex;    // How far along the sequence we are
         private float m_jumpRequest;    // Time where jump will be excuted automatically if becoming grounded
         private float m_jumpCooldown;   // Time where player cannot queue jump
+
+        #endregion
+
+        #region Events
+
+        // Events
+        public event Action OnJump;     // Called when the player jumps
+
+        #endregion
+
+        #region Unity methods
 
         private void Start()
         {
@@ -101,22 +137,37 @@ namespace URC.Movement
             ReverseGravity();
         }
 
+        #endregion
+
+        #region Initialization
+
         /// <summary>
-        /// Attempts to load the default jumping sounds from resources folder.
-        /// Will throw a warning if the default sounds are not found.
+        /// Attempts to find default sounds from resource folder
         /// </summary>
         private void FindDefaultSounds()
         {
-            // Attempt to load it from resources
-            m_jumpSounds = Resources.Load<AudioBundle>("AudioBundles/Default jumps");
+            VerifyAudioSettings(m_groundedJumpAudio, "Default Jumps");
+            VerifyAudioSettings(m_landingAudio, "Default Landings");
+            //VerifyAudioSettings(m_additionalJumpAudio, "Default Additional Jumps");
+        }
 
-            // If it's still null, throw a warning
-            if (m_jumpSounds == null)
+        private void VerifyAudioSettings(JumpAudioSettings settings, string bundleName)
+        {
+            // Ignore if already set
+            if (settings.Audio != null)
+                return;
+
+            // Attempt to find default audio if not set. Disable if default audio cant be found
+            settings.Audio = Resources.Load<AudioBundle>("AudioBundles/" + bundleName);
+            if (settings.Enabled && settings.Audio == null)
             {
-                Logging.Log("No audio bundle was assigned to jump sounds, and default sounds could not be found. Jumping sounds will not be played!.", LoggingLevel.Critical);
-                m_playJumpSound = false;
+                settings.Enabled = false;
             }
         }
+
+        #endregion
+
+        #region Jumping
 
         /// <summary>
         /// Applies a force in the opposite direction of gravity when holding down space and going upwards.
@@ -124,7 +175,7 @@ namespace URC.Movement
         /// </summary>
         private void ReverseGravity()
         {
-            if (Input.GetButton("Jump") && Motor.VerticalSpeed > 0.0f)
+            if (Input.GetKey(m_jumpKey) && Motor.VerticalSpeed > 0.0f)
             {
                 Vector3 defaultGravity = (Physics.gravity * Motor.GravityScale);
                 Vector3 reverseGravity = (1 - m_jumpHoldGravityMultiplier) * -defaultGravity;
@@ -146,7 +197,7 @@ namespace URC.Movement
             }
 
             // Listen for input and issue request
-            bool jumpIssued = (m_autoJump) ? Input.GetButton("Jump") : Input.GetButtonDown("Jump");
+            bool jumpIssued = (m_autoJump) ? Input.GetKey(m_jumpKey) : Input.GetKeyDown(m_jumpKey);
             m_jumpRequest = (jumpIssued) ? m_jumpQueueTime : m_jumpRequest -= Time.deltaTime;
         }
 
@@ -208,6 +259,19 @@ namespace URC.Movement
         /// <param name="jump">The jump to perform</param>
         private void ExecuteJump(Jump jump)
         {
+            // Play sound if enabled
+            if (m_sequenceIndex == 0)
+            {
+                if (m_groundedJumpAudio.Enabled) 
+                    PlaySound(m_groundedJumpAudio);
+            }
+
+            else
+            {
+                if (m_additionalJumpAudio.Enabled)
+                    PlaySound(m_additionalJumpAudio);
+            }
+
             // Increase sequence index if we are not at the end
             m_sequenceIndex += 1;
 
@@ -229,9 +293,6 @@ namespace URC.Movement
             m_jumpRequest = 0.0f;
             m_jumpCooldown = m_minJumpCooldown;
 
-            // Play sound if enabled
-            if (m_playJumpSound) PlayJumpSound();
-
             // Invoke event
             OnJump?.Invoke();
         }
@@ -239,15 +300,15 @@ namespace URC.Movement
         /// <summary>
         /// Plays a random jump sound from audio bundle
         /// </summary>
-        private void PlayJumpSound()
+        private void PlaySound(JumpAudioSettings settings)
         {
             // Choose sound either weighted or random
-            AudioBundle.Audio audio = (m_useWeightsForAudio) ? m_jumpSounds.GetWeightedAudio() : m_jumpSounds.GetRandomAudio();
+            AudioBundle.Audio audio = (settings.WeightedRandom) ? settings.Audio.GetWeightedAudio() : settings.Audio.GetRandomAudio();
 
             // Play based on if audio source is set or not
-            if (m_jumpAudioSource != null)
+            if (m_audioSource != null)
             {
-                m_jumpAudioSource.PlayOneShot(audio.Clip, audio.Volume);
+                m_audioSource.PlayOneShot(audio.Clip, audio.Volume);
             }
             else
             {
@@ -261,6 +322,11 @@ namespace URC.Movement
         private void OnGroundEnter()
         {
             m_sequenceIndex = 0;
+
+            // Play landing sound if enabled
+            if (m_landingAudio.Enabled) PlaySound(m_landingAudio);
         }
     }
+
+    #endregion
 }

@@ -12,15 +12,21 @@ namespace URC.Movement
     /// </summary>
     public class Sprinting : Module
     {
-        [Header("Sprinting settings")]
+        #region Public variables
+
+        [Header("Activation")]
+        [Tooltip("Key to start sprint")]
+        public KeyCode m_sprintingKey;
         [Tooltip("Should the sprinting be a toggle or hold to sprint?")]
         public bool m_isToggle;
-        [Tooltip("Multiplier for movement speed of motor.")]
-        public float m_speedMultiplier;
         [Tooltip("Minimum amount of time between sprinting.")]
         public float m_sprintStartDelay;
         [Tooltip("Can sprinting start while in the air?")]
         public bool m_mustStartGrounded;
+        
+        [Header("Sprinting settings")]        
+        [Tooltip("Multiplier for movement speed of motor.")]
+        public float m_speedMultiplier;
         [Tooltip("Should sprinting stop when becoming airborne?")]
         public bool m_requireGrounding;
         [Tooltip("Must the player be moving to sprint?")]
@@ -34,6 +40,10 @@ namespace URC.Movement
         [Tooltip("How quickly the FOV will reset to original value")]
         public float m_FovResetSpeed;
 
+        #endregion
+
+        #region Private variables
+
         // Sprinting variables
         private bool m_isSprinting;
         private float m_sprintPreventionTimer;
@@ -41,6 +51,10 @@ namespace URC.Movement
 
         // Components
         private CameraUtilities m_cameraUtils;
+
+        #endregion
+
+        #region Unity Methods
 
         public override void Awake()
         {
@@ -65,7 +79,7 @@ namespace URC.Movement
             }
 
             // Check for sprint input
-            if (Input.GetKey(KeyCode.LeftShift) && !m_isSprinting)
+            if (Input.GetKey(m_sprintingKey) && !m_isSprinting)
             {
                 AttemptSprintStart();
             }
@@ -73,6 +87,10 @@ namespace URC.Movement
             // Update sprinting
             if (m_isSprinting) UpdateSprinting();
         }
+
+        #endregion
+
+        #region Sprinting
 
         /// <summary>
         /// Checks the requirements of sprinting and starts sprinting if possible.
@@ -128,7 +146,7 @@ namespace URC.Movement
             if (m_requireMovement && !InputHelper.DesiresMove()) StopSprint();
 
             // Check for sprint input
-            bool desiresStop = (m_isToggle) ? Input.GetKeyDown(KeyCode.LeftShift) && !m_startedThisFrame : !Input.GetKey(KeyCode.LeftShift);
+            bool desiresStop = (m_isToggle) ? Input.GetKeyDown(m_sprintingKey) && !m_startedThisFrame : !Input.GetKey(m_sprintingKey);
             if (desiresStop) StopSprint();
 
             // We no longer started this frame
@@ -154,4 +172,6 @@ namespace URC.Movement
             m_sprintPreventionTimer = m_sprintStartDelay;
         }
     }
+
+    #endregion
 }

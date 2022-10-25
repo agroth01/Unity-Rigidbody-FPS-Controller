@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 58080931bf2c8b14d91d9cf31f70a537, type: 3}
-  m_Name: Default Jumps
+  m_Name: Default Landings
   m_EditorClassIdentifier: 
   m_audioCollection:
-  - Clip: {fileID: 8300000, guid: 1ebc731ae39985b468ff77654d7876cf, type: 3}
-    Volume: 0.4
+  - Clip: {fileID: 8300000, guid: c4ba786e6158fe94c9abd30af2018985, type: 3}
+    Volume: 0.3
     Tag: 
     Weight: 1
-  - Clip: {fileID: 8300000, guid: c56fde2de0b21db4ea85009b9f4637d9, type: 3}
-    Volume: 0.4
+  - Clip: {fileID: 8300000, guid: 62cb3472ab78193498bca312413d5a20, type: 3}
+    Volume: 0.3
     Tag: 
     Weight: 1
-  - Clip: {fileID: 8300000, guid: f3c08076c90b58946a110048ae46e261, type: 3}
-    Volume: 0.4
+  - Clip: {fileID: 8300000, guid: 312068c89d6180b429867e8b3c2fb862, type: 3}
+    Volume: 0.3
     Tag: 
     Weight: 1

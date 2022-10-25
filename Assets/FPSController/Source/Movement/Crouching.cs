@@ -13,8 +13,10 @@ namespace URC.Movement
     public class Crouching : Module
     {
         #region Public variables
-        
+
         [Header("General")]
+        [Tooltip("What key should start crouching?")]
+        public KeyCode m_crouchKey;
         [Tooltip("Should the crouching be a toggle or a hold?")]
         public bool m_isToggle;
         [Tooltip("Does the player have to be grounded to crouch?")]
@@ -90,7 +92,7 @@ namespace URC.Movement
         private void Update()
         {
             // Start crouch if possible
-            if (Input.GetKey(KeyCode.LeftControl) && !m_isCrouching)
+            if (Input.GetKey(m_crouchKey) && !m_isCrouching)
             {
                 // Add this for toggle to work
                 m_changedThisFrame = true;
@@ -165,7 +167,7 @@ namespace URC.Movement
         private void InCrouch()
         {
             // Check for release of input. Note that we do not flag as not crouching here, as resizing might be blocked.
-            bool stop = (m_isToggle) ? Input.GetKeyDown(KeyCode.LeftControl) : Input.GetKeyUp(KeyCode.LeftControl);
+            bool stop = (m_isToggle) ? Input.GetKeyDown(m_crouchKey) : Input.GetKeyUp(m_crouchKey);
             if (stop && !m_changedThisFrame)
             {
                 // Reset the target size.
