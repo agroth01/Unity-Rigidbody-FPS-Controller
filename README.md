@@ -37,6 +37,9 @@ your own controllers.
 * Custom surface audio
 * "Plug and play" prefabs
 
+# Installation
+You can download the latest .unityproject file from the [releases](https://github.com/agroth01/Unity-Rigidbody-FPS-Controller/releases/tag/Unity) page here on GitHub.
+
 # Contributions
 If you want to contribute to this project, please feel free to fork this project and create pull requests. I will however be very strict with accepting, in order to preserve 
 coding style and structure.
