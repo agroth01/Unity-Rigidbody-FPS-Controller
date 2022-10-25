@@ -31,10 +31,10 @@ your own controllers.
 * Jumping
 * Sprinting
 * Camera utilities
+* Custom surface audio
 
 ### Planned
 * Custom surface properties
-* Custom surface audio
 * "Plug and play" prefabs
 
 # Installation
