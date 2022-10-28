@@ -49,6 +49,7 @@ namespace URC.Movement
 
         // Flags
         private bool m_isCrouching;
+        private bool m_speedModified;   // Track when the speed of the motor has been changed by this module
 
         // Components
         private CapsuleCollider m_collider;
@@ -182,6 +183,7 @@ namespace URC.Movement
         {
             // Set the movement speed to crouching speed
             Motor.ModifySpeedMultiplier(m_speedReduction, Motor.ModifyType.Multiplicative);
+            m_speedModified = true;
         }
 
         /// <summary>
@@ -196,7 +198,11 @@ namespace URC.Movement
             OnCrouchEnd?.Invoke();
 
             // Reset the movement speed
-            Motor.ModifySpeedMultiplier(1 / m_speedReduction, Motor.ModifyType.Multiplicative);
+            if (m_speedModified)
+            {
+                Motor.ModifySpeedMultiplier(1 / m_speedReduction, Motor.ModifyType.Multiplicative);
+                m_speedModified = false;
+            }
         }
 
         #endregion
